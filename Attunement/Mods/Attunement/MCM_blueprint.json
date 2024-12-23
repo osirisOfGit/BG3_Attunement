@@ -1,0 +1,51 @@
+{
+	"SchemaVersion": 1,
+	"Tabs": [
+		{
+			"TabName": "General",
+			"TabDescription": "General settings",
+			"TabId": "general",
+			"Handles": {
+				"NameHandle": "h48114efb7ced449bbb25a5f3f336b50af25f",
+				"DescriptionHandle": "h5d55ed7112d647a29ec04f0a6abb6e32bc0b"
+			},
+			"Sections": [
+				{
+					"SectionName": "General Mod Behavior",
+					"SectionId": "general-mod-behavior",
+					"Handles": {
+						"NameHandle": "h80a1c01dc37c47609ae90e962edb40261db9"
+					},
+					"Settings": [
+						{
+							"Id": "enabled",
+							"Name": "Enable Mod",
+							"Description": "Enables or disables the mod",
+							"Handles": {
+								"NameHandle": "h5483f83a22da46f5a975281e1827b988acae",
+								"DescriptionHandle": "h5b58ff1d4f354c3d88d6db2a213a6fc0a95d"
+							},
+							"Type": "checkbox",
+							"Default": true
+						},
+						{
+							"Id": "log_level",
+							"Name": "Log level",
+							"Description": "0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)",
+							"Handles": {
+								"NameHandle": "h91ffd7b8ad96495b8073dcf355cbd4372617",
+								"DescriptionHandle": "hfc82d5049a6f4084a89c8440b153edbafeab"
+							},
+							"Type": "slider_int",
+							"Default": 3,
+							"Options": {
+								"Min": 0,
+								"Max": 5
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
