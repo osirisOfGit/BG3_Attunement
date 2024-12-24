@@ -139,14 +139,30 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 							end
 							--#endregion
 
-							local requiresAttunement = newRow:AddCell():AddCheckbox("",
-								itemConfig.requiresAttunementOverrides[itemStat.Name] or (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= ""))
+							local attunmentCell = newRow:AddCell()
+							-- Friggen lua falsy logic
+							local checkTheBox = itemConfig.requiresAttunementOverrides[itemStat.Name]
+							if checkTheBox == nil then
+								checkTheBox = (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "")
+							end
+							local requiresAttunement = attunmentCell:AddCheckbox("", checkTheBox)
 
+							-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
+							local resetAttunement = attunmentCell:AddImageButton("resetAttunement", "ico_reset_d", { 32, 32 })
+							resetAttunement.SameLine = true
+							resetAttunement.Visible = itemConfig.requiresAttunementOverrides[itemStat.Name] ~= nil
+							resetAttunement.OnClick = function()
+								requiresAttunement.Checked = not itemConfig.requiresAttunementOverrides[itemStat.Name]
+								itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
+								resetAttunement.Visible = false
+							end
 							requiresAttunement.OnChange = function()
 								if requiresAttunement.Checked == (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "") then
 									itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
+									resetAttunement.Visible = false
 								else
 									itemConfig.requiresAttunementOverrides[itemStat.Name] = requiresAttunement.Checked
+									resetAttunement.Visible = true
 								end
 							end
 						end
