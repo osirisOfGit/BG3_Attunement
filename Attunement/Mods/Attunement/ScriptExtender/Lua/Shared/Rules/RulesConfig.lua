@@ -18,12 +18,15 @@ RarityLimitCategories = {
 }
 
 --- @class LimitRarityBySlotGroup
-ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimitPerSlot = {
+ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot = {
 	Total = 12,
 	Weapons = 4,
 	Armor = 5,
 	Accessories = 3,
 }
+
+--- @type {[Rarity] : {[RarityLimitCategories] : number }}
+ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimits = {}
 
 --- @alias DifficultyID string
 

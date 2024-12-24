@@ -23,7 +23,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			section:AddText("Total Number Of Attuned Items Allowed")
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
 			-- totalAttuneLimitSlider.SameLine = true
-			totalAttuneLimitSlider.OnChange = function ()
+			totalAttuneLimitSlider.OnChange = function()
 				difficultyConfig.totalAttunementLimit = totalAttuneLimitSlider.Value[1]
 			end
 
@@ -41,15 +41,24 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			headerRow:AddCell():AddText("Accessories")
 
 			for _, rarity in ipairs(RarityEnum) do
+				local rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
+				if not rarityLimitConfig then
+					difficultyConfig.rarityLimits[rarity] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot)
+					rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
+				end
+
 				local slotRow = slotTable:AddRow()
 				slotRow:AddCell():AddText(rarity):SetColor("Text", RarityColors[rarity])
+
 				for _, category in ipairs(RarityLimitCategories) do
 					local rarityColor = TableUtils:DeeplyCopyTable(RarityColors[rarity])
 					rarityColor[4] = 0.5 -- turn down the alpha, it bright AF
-					local slider = slotRow:AddCell():AddSliderInt("", difficultyConfig.rarityLimitPerSlot[category], 1, ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimitPerSlot[category])
+
+					local slider = slotRow:AddCell():AddSliderInt("", rarityLimitConfig[category], 1,
+						ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot[category])
 					slider:SetColor("SliderGrab", rarityColor)
-					slider.OnChange = function ()
-						difficultyConfig.rarityLimitPerSlot[category] = slider.Value[1]
+					slider.OnChange = function()
+						rarityLimitConfig[category] = slider.Value[1]
 					end
 				end
 			end
