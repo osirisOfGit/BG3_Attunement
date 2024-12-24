@@ -1,30 +1,26 @@
 ---@type table<FixedString, ItemTemplate>
 local allItemRoots = {}
+local sortedRoots = {}
+
 local function populateTemplateTable()
-	local indexedList = {}
-	local mapCopy = {}
 	for templateName, template in pairs(Ext.ClientTemplate.GetAllRootTemplates()) do
 		---@cast template ItemTemplate
 		if template.TemplateType == "item" then
 			---@type Armor|Weapon
 			local stat = Ext.Stats.Get(template.Stats)
-			if stat and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
-				table.insert(indexedList, template.DisplayName:Get() or templateName)
-				mapCopy[template.DisplayName:Get() or templateName] = template
+
+			local name = template.DisplayName:Get() or templateName
+			if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") and not allItemRoots[name] then
+				table.insert(sortedRoots, name)
+				allItemRoots[name] = template
 			end
 		end
 	end
 	-- Fewest amount of characters to most, so more relevant results are at the top of the list
-	table.sort(indexedList, function(a, b)
-		return string.len(a) < string.len(b)
-	end)
-	for _, name in pairs(indexedList) do
-		allItemRoots[name] = mapCopy[name]
-	end
+	table.sort(sortedRoots)
 end
 populateTemplateTable()
 
--- Credit to EasyCheat
 -- https://bg3.norbyte.dev/search?q=rarity#result-f23802a9083da2ad18665deb188a569752dc7900
 local rarityColors = {
 	Common = { 1.00, 1.00, 1.00, 1.0 },
@@ -40,15 +36,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		tabHeader.TextWrapPos = 0
 
 		--#region Search
+		tabHeader:AddText("Items with 'Common' rarity are filtered out")
 		local searchInput = tabHeader:AddInputText("")
-		searchInput.Hint = "Case-insensitive - use * to wildcard. Example: *ing*trap* for BURNING_TRAPWALL"
+		searchInput.Hint = "Case-insensitive"
 		searchInput.AutoSelectAll = true
 		searchInput.EscapeClearsAll = true
-
-		-- local resultsPopup = tabHeader:AddPopup("ResultsPopup")
-		-- resultsPopup.NoFocusOnAppearing = true
-
-		local bulkEdit = tabHeader:AddButton("Bulk Edit")
 
 		local resultsTable = tabHeader:AddTable("ResultsTable", 4)
 		resultsTable.Hideable = true
@@ -80,8 +72,10 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 				if #searchInput.Text >= 3 then
 					local upperSearch = string.upper(searchInput.Text)
-					for templateName, itemTemplate in pairs(allItemRoots) do
+					for _, templateName in pairs(sortedRoots) do
 						if string.find(string.upper(templateName), upperSearch) then
+							local itemTemplate = allItemRoots[templateName]
+
 							local newRow = resultsTable:AddRow()
 							newRow.IDContext = itemTemplate.Id
 							newRow.UserData = itemTemplate
@@ -113,7 +107,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 								_P(itemTemplate.Id)
 							end
 
-							local blacklisted = newRow:AddCell():AddCheckbox("", itemStat.Boosts ~= "")
+							local requiresAttunement = newRow:AddCell():AddCheckbox("", itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "")
 						end
 					end
 				end
