@@ -21,19 +21,12 @@ local function populateTemplateTable()
 end
 populateTemplateTable()
 
--- https://bg3.norbyte.dev/search?q=rarity#result-f23802a9083da2ad18665deb188a569752dc7900
-local rarityColors = {
-	Common = { 1.00, 1.00, 1.00, 1.0 },
-	Uncommon = { 0.00, 0.66, 0.00, 1.0 },
-	Rare = { 0.20, 0.80, 1.00, 1.0 },
-	VeryRare = { 0.64, 0.27, 0.91, 1.0 },
-	Legendary = { 0.92, 0.78, 0.03, 1.0 },
-}
-
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
 	function(tabHeader)
 		tabHeader.TextWrapPos = 0
+
+		local itemConfig = ConfigurationStructure.config.items
 
 		--#region Search
 		tabHeader:AddText("Items with 'Common' rarity are filtered out")
@@ -85,15 +78,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 							local nameCell = newRow:AddCell()
 							local icon = nameCell:AddImage(itemTemplate.Icon or "Item_Unknown", { 32, 32 })
-							icon.Border = rarityColors[itemStat.Rarity]
+							icon.Border = RarityColors[itemStat.Rarity]
 
 							nameCell:AddText(templateName).SameLine = true
 
-							local rarityCombo = newRow:AddCell():AddCombo("")
-							rarityCombo.SameLine = true
+							--#region Rarity
+							local rarityCell = newRow:AddCell()
+							local rarityCombo = rarityCell:AddCombo("")
 							local opts = {}
 							local selectIndex = 0
-							for rarity, _ in pairs(rarityColors) do
+							for _, rarity in ipairs(RarityEnum) do
 								if rarity == itemStat.Rarity then
 									selectIndex = #opts
 								end
@@ -101,13 +95,60 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 							end
 							rarityCombo.Options = opts
 							rarityCombo.SelectedIndex = selectIndex
-							rarityCombo.OnChange = function()
-								itemStat.Rarity = rarityCombo.Options[rarityCombo.SelectedIndex + 1]
-								icon.Border = rarityColors[itemStat.Rarity]
-								_P(itemTemplate.Id)
+
+							-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
+							local resetRarityButton = rarityCell:AddImageButton("resetRarity", "ico_reset_d", { 32, 32 })
+							resetRarityButton.SameLine = true
+							resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
+							resetRarityButton.OnClick = function()
+								itemStat.Rarity = itemConfig.rarityOverrides[itemStat.Name].Original
+
+								for i, rarity in ipairs(rarityCombo.Options) do
+									if rarity == itemStat.Rarity then
+										rarityCombo.SelectedIndex = i - 1
+										icon.Border = RarityColors[itemStat.Rarity]
+										break
+									end
+								end
+
+								itemConfig.rarityOverrides[itemStat.Name].delete = true
+								itemConfig.rarityOverrides[itemStat.Name] = nil
+								resetRarityButton.Visible = false
 							end
 
-							local requiresAttunement = newRow:AddCell():AddCheckbox("", itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "")
+							rarityCombo.OnChange = function()
+								local rarityOverride = itemConfig.rarityOverrides[itemStat.Name]
+								---@type Rarity
+								local selectedRarity = rarityCombo.Options[rarityCombo.SelectedIndex + 1]
+
+								if not rarityOverride then
+									itemConfig.rarityOverrides[itemStat.Name] = {
+										Original = itemStat.Rarity,
+										New = selectedRarity,
+									}
+								elseif rarityOverride.Original ~= selectedRarity then
+									rarityOverride.New = selectedRarity
+								else
+									itemConfig.rarityOverrides[itemStat.Name].delete = true
+									itemConfig.rarityOverrides[itemStat.Name] = nil
+								end
+
+								resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
+								itemStat.Rarity = selectedRarity
+								icon.Border = RarityColors[itemStat.Rarity]
+							end
+							--#endregion
+
+							local requiresAttunement = newRow:AddCell():AddCheckbox("",
+								itemConfig.requiresAttunementOverrides[itemStat.Name] or (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= ""))
+
+							requiresAttunement.OnChange = function()
+								if requiresAttunement.Checked == (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "") then
+									itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
+								else
+									itemConfig.requiresAttunementOverrides[itemStat.Name] = requiresAttunement.Checked
+								end
+							end
 						end
 					end
 				end

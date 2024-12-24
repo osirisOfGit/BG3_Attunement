@@ -46,7 +46,6 @@ local function generate_recursive_metatable(proxy_table, real_table)
 				end
 			end
 
-
 			if initialized then
 				if updateTimer then
 					Ext.Timer.Cancel(updateTimer)
@@ -74,6 +73,9 @@ ConfigurationStructure.DynamicClassDefinitions = {}
 
 --- @class Configuration
 ConfigurationStructure.config = generate_recursive_metatable({}, real_config_table)
+
+Ext.Require("Shared/ItemConfig/ItemConfig.lua")
+Ext.Require("Shared/Rules/RulesConfig.lua")
 
 local function CopyConfigsIntoReal(table_from_file, proxy_table)
 	for key, value in pairs(table_from_file) do

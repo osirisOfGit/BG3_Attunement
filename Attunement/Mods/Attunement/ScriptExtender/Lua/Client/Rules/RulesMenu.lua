@@ -14,10 +14,6 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			section:AddText("Total Number Of Attuned Items Allowed")
 			section:AddSliderInt("", 5, 1, 12).SameLine = true
 
-			section:AddText("Total Number of Each Rarity Allowed")
-
-			local totalSliderGroup = section:AddGroup("totalSlider")
-
 			section:AddText("Limit Per Slot Group")
 			local slotTable = section:AddTable("RarityBySlot", 4)
 			slotTable.SizingStretchProp = true
@@ -29,18 +25,9 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			headerRow:AddCell():AddText("Armor")
 			headerRow:AddCell():AddText("Accessories")
 
-			for rarity, color in pairs({
-				Common = { 1.00, 1.00, 1.00, 1.0 },
-				Uncommon = { 0.00, 0.66, 0.00, 1.0 },
-				Rare = { 0.20, 0.80, 1.00, 1.0 },
-				VeryRare = { 0.64, 0.27, 0.91, 1.0 },
-				Legendary = { 0.92, 0.78, 0.03, 1.0 },
-			}) do
-				totalSliderGroup:AddText(rarity):SetColor("Text", color)
-				totalSliderGroup:AddSliderInt("", 12, 1, 12).SameLine = true
-
+			for _, rarity in ipairs(RarityEnum) do
 				local slotRow = slotTable:AddRow()
-				slotRow:AddCell():AddText(rarity):SetColor("Text", color)
+				slotRow:AddCell():AddText(rarity):SetColor("Text", RarityColors[rarity])
 				for _, numberOfSlots in pairs({4, 5, 3} ) do
 					slotRow:AddCell():AddSliderInt("", numberOfSlots, 1, numberOfSlots)
 				end
