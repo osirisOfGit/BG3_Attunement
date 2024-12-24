@@ -135,6 +135,7 @@ function ConfigurationStructure:UpdateConfigForServer()
 		real_config_table = config
 		Logger:BasicDebug("Successfully updated config on server side!")
 	end
+	return ConfigurationStructure:GetRealConfigCopy()
 end
 
 if Ext.IsClient() then

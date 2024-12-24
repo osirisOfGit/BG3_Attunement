@@ -1,3 +1,12 @@
+-- Has to happen in the client since StatsLoaded fires before the server starts up, so... might as well do here
+Ext.Events.StatsLoaded:Subscribe(function()
+	for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
+		Ext.Stats.Get(statName).Rarity = raritySetting.New
+	end
+	Logger:BasicInfo("Successfully applied Rarity overrides")
+	Logger:BasicDebug("Applied the following Rarity overrides: \n%s", Ext.Json.Stringify(ConfigurationStructure:GetRealConfigCopy().items.rarityOverrides))
+end)
+
 ---@type table<FixedString, ItemTemplate>
 local allItemRoots = {}
 local sortedRoots = {}
