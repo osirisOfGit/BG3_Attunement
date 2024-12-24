@@ -11,4 +11,4 @@ ConfigurationStructure:InitializeConfig()
 
 Ext.Require("Client/_DataSearchHelper.lua")
 Ext.Require("Client/ItemConfig/ItemConfigMenu.lua")
--- Ext.Require("Client/Attunement/Attunement/AttunementMenu.lua")
+Ext.Require("Client/Rules/RulesMenu.lua")

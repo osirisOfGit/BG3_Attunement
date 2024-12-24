@@ -3,4 +3,5 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 	function(tabHeader)
 		tabHeader.TextWrapPos = 0
 
+		
 	end)
