@@ -47,7 +47,7 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 	---@type ItemTemplate
 	local template = Ext.Template.GetTemplate(string.sub(Osi.GetTemplate(item), -36))
 
-	if template.TemplateType == "item" then
+	if template.TemplateType == "item" and Osi.IsEquipped(item) == 0 then
 		---@type Weapon|Armor|Object
 		local stat = Ext.Stats.Get(template.Stats)
 
