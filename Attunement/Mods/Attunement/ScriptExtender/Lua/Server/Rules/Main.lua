@@ -35,15 +35,6 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 			Osi.AddPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
 		end
 	end
-
-	-- for _, stat in pairs(Ext.Stats.GetStats()) do
-	-- 	---@type Armor|Weapon|Object
-	-- 	local statEntry = Ext.Stats.Get(stat)
-
-	-- 	if statEntry and statEntry.UseCosts and string.find(statEntry.UseCosts, "Attunement") thenE
-	-- 		string.gsub(statEntry.UseCosts, "Attunement:1", string.format("Attunement:%s", dif)
-	-- 	end
-	-- endE
 end)
 
 Ext.Osiris.RegisterListener("TemplateEquipped", 2, "after", function(itemTemplate, character)
@@ -55,10 +46,10 @@ Ext.Osiris.RegisterListener("TemplateEquipped", 2, "after", function(itemTemplat
 
 	local passiveApplied = string.match(stat.PassivesOnEquip, "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(stat.Slot, " ", "_"))
 	if passiveApplied then
-		---@type PassiveData
-		local passive = Ext.Stats.Get(passiveApplied)
-		Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h8288b3f51c2c45dda3da9331fbddefd7dafd"))
-		Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("he5b84d40ad6f4fd498974b3a152182549c3f"))
+		-- ---@type PassiveData
+		-- local passive = Ext.Stats.Get(passiveApplied)
+		-- Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h8288b3f51c2c45dda3da9331fbddefd7dafd"))
+		-- Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("he5b84d40ad6f4fd498974b3a152182549c3f"))
 	end
 end)
 
@@ -71,11 +62,11 @@ Ext.Osiris.RegisterListener("TemplateUnequipped", 2, "after", function(itemTempl
 
 	local passiveApplied = string.match(stat.PassivesOnEquip, "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(stat.Slot, " ", "_"))
 	if passiveApplied then
-		---@type PassiveData
-		local passive = Ext.Stats.Get(passiveApplied)
-		Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h9003c2521b87482a9cb8cad70e010e84ce6g"))
-		Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("hdbe3209ca8da48f4accec8d329f59a1e283f"))
-		
+		-- ---@type PassiveData
+		-- local passive = Ext.Stats.Get(passiveApplied)
+		-- Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h9003c2521b87482a9cb8cad70e010e84ce6g"))
+		-- Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("hdbe3209ca8da48f4accec8d329f59a1e283f"))
+
 		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
