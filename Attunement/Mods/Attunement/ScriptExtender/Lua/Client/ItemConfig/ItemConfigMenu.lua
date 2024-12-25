@@ -29,8 +29,6 @@ Ext.Events.StatsLoaded:Subscribe(function()
 		Ext.Stats.Get(statName).Rarity = raritySetting.New
 	end
 
-	local slotsCreated = {}
-
 	for _, template in pairs(allItemRoots) do
 		---@type Weapon|Armor|Object
 		local stat = Ext.Stats.Get(template.Stats)
@@ -47,12 +45,6 @@ Ext.Events.StatsLoaded:Subscribe(function()
 			else
 				stat.UseCosts = stat.UseCosts .. (stat.UseCosts == "" and "" or ";") .. "Attunement:1"
 			end
-
-			if not slotsCreated[stat.Slot] then
-				Ext.Stats.Create("ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(tostring(stat.Slot), " ", "_"), "PassiveData", "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE"):Sync()
-				slotsCreated[stat.Slot] = true
-			end
-			stat.PassivesOnEquip = stat.PassivesOnEquip .. (stat.PassivesOnEquip == "" and "" or ";") .. "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(stat.Slot, " ", "_")
 		end
 	end
 

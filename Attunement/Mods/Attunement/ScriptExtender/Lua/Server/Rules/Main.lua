@@ -37,35 +37,35 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 	end
 end)
 
-Ext.Osiris.RegisterListener("TemplateEquipped", 2, "after", function(itemTemplate, character)
-	---@type ItemTemplate
-	local template = Ext.ServerTemplate.GetTemplate(string.sub(itemTemplate, -36))
-
-	---@type Weapon|Armor|Object
-	local stat = Ext.Stats.Get(template.Stats)
-
-	local passiveApplied = string.match(stat.PassivesOnEquip, "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(stat.Slot, " ", "_"))
-	if passiveApplied then
-		-- ---@type PassiveData
-		-- local passive = Ext.Stats.Get(passiveApplied)
-		-- Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h8288b3f51c2c45dda3da9331fbddefd7dafd"))
-		-- Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("he5b84d40ad6f4fd498974b3a152182549c3f"))
+Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
+	if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+		Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
 	end
 end)
 
-Ext.Osiris.RegisterListener("TemplateUnequipped", 2, "after", function(itemTemplate, character)
+Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolder, addType)
 	---@type ItemTemplate
-	local template = Ext.ServerTemplate.GetTemplate(string.sub(itemTemplate, -36))
+	local template = Ext.Template.GetTemplate(string.sub(Osi.GetTemplate(item), -36))
+
+	if template.TemplateType == "item" then
+		---@type Weapon|Armor|Object
+		local stat = Ext.Stats.Get(template.Stats)
+
+		if string.find(stat.UseCosts, "Attunement") then
+			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+		end
+	end
+end)
+
+Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
+	---@type ItemTemplate
+	local template = Ext.ServerTemplate.GetTemplate(string.sub(Osi.GetTemplate(item), -36))
 
 	---@type Weapon|Armor|Object
 	local stat = Ext.Stats.Get(template.Stats)
 
-	local passiveApplied = string.match(stat.PassivesOnEquip, "ATTUNEMENT_REQUIRES_ATTUNEMENT_PASSIVE_" .. string.gsub(stat.Slot, " ", "_"))
-	if passiveApplied then
-		-- ---@type PassiveData
-		-- local passive = Ext.Stats.Get(passiveApplied)
-		-- Ext.Loca.UpdateTranslatedString(passive.DisplayName, Ext.Loca.GetTranslatedString("h9003c2521b87482a9cb8cad70e010e84ce6g"))
-		-- Ext.Loca.UpdateTranslatedString(passive.Description, Ext.Loca.GetTranslatedString("hdbe3209ca8da48f4accec8d329f59a1e283f"))
+	if string.find(stat.UseCosts, "Attunement") then
+		Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 
 		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
 		---@type EntityHandle
