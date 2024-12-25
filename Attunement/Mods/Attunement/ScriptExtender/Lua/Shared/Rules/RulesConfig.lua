@@ -28,7 +28,16 @@ ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot = {
 --- @type {[Rarity] : {[RarityLimitCategories] : number }}
 ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimits = {}
 
---- @alias DifficultyID string
-
----@type { [DifficultyID|'Base'] : AttunementRules }
+---@enum Difficulties
+Difficulties = {
+	[1] = "EASY",
+	[2] = "MEDIUM",
+	[3] = "HARD",
+	[4] = "HONOUR",
+	EASY = 1,
+	MEDIUM = 2,
+	HARD = 3,
+	HONOUR = 4
+}
+---@type { [Difficulties|'Base'] : AttunementRules }
 ConfigurationStructure.config.rules = {}

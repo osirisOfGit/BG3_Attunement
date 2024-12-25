@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<contentList>
+    <content contentuid="hd3a156cc7fbf4a5c985eef63f0c2b99b55g3" version="1">Attunement Slots</content>
+    <content contentuid="h98e3be41aead4b5bb8ee60104126ded4b17d" version="1">How many items you can have attuned</content>
+    <content contentuid="hc45f783f425b4558b9551da613a4f211dd22" version="1">HEY ME, FIGURE OUT WHAT THE HECK THIS IS</content>
+    <!-- Dummy handles to hold the OG values so we can update the other handles -->
+    <content contentuid="h9003c2521b87482a9cb8cad70e010e84ce6g" version="1">Requires Attunement</content>
+    <content contentuid="hdbe3209ca8da48f4accec8d329f59a1e283f" version="1">This item requires attunement - if you have no attunement slots, you will not be able to equip this</content>
+    <!-- End Dummy handles -->
+    <content contentuid="h0dab9a9524554677bd7be74976561c919df5" version="1">Requires Attunement</content>
+    <content contentuid="h046058e8c20743e9a151895245575dc7fa1a" version="1">This item requires attunement - if you have no attunement slots, you will not be able to equip this</content>
+    <content contentuid="h8288b3f51c2c45dda3da9331fbddefd7dafd" version="1">Attuned</content>
+    <content contentuid="he5b84d40ad6f4fd498974b3a152182549c3f" version="1">Currently attuned</content>
+    <content contentuid="h2e2aa5947cf84efaa2ed47d9dcad52491b04" version="1">No More Attunement Slots Are Available - Can't Attune This Item</content>
+</contentList>

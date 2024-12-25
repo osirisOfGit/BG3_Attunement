@@ -9,17 +9,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local difficultyGroup = tabHeader:AddGroup("Difficulties")
 
-		---@param difficultyData ResourceRuleset|'Base'
+		---@param diffId Difficulties|'Base'
 		---@return ExtuiCollapsingHeader
-		local function buildDifficultySections(difficultyData)
-			local diffId = difficultyData == "Base" and difficultyData or difficultyData.ResourceUUID
+		local function buildDifficultySections(diffId)
 			local difficultyConfig = attuneConfig[diffId]
 			if not difficultyConfig then
 				attuneConfig[diffId] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules)
 				difficultyConfig = attuneConfig[diffId]
 			end
 
-			local section = difficultyGroup:AddCollapsingHeader(difficultyData == "Base" and "Base" or (difficultyData.DisplayName:Get() or difficultyData.Name))
+			local section = difficultyGroup:AddCollapsingHeader(diffId)
 			section:AddText("Total Number Of Attuned Items Allowed")
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
 			-- totalAttuneLimitSlider.SameLine = true
@@ -71,26 +70,22 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 		local addRowButton = tabHeader:AddButton("+")
 		local difficultyPopop = tabHeader:AddPopup("")
 
-		for _, difficulty in pairs(Ext.StaticData.GetAll("Ruleset")) do
-			---@type ResourceRuleset
-			local difficultyData = Ext.StaticData.Get(difficulty, "Ruleset")
-			if difficultyData.ShowInCustom then
-				---@type ExtuiSelectable
-				local difficultySelect = difficultyPopop:AddSelectable((difficultyData.DisplayName:Get() or difficultyData.Name), "DontClosePopups")
+		for _, difficulty in ipairs(Difficulties) do
+			---@type ExtuiSelectable
+			local difficultySelect = difficultyPopop:AddSelectable(difficulty, "DontClosePopups")
 
-				difficultySelect.OnActivate = function()
-					if difficultySelect.UserData then
-						difficultySelect.UserData:Destroy()
-						difficultySelect.UserData = nil
-					else
-						difficultySelect.UserData = buildDifficultySections(difficultyData)
-					end
+			difficultySelect.OnActivate = function()
+				if difficultySelect.UserData then
+					difficultySelect.UserData:Destroy()
+					difficultySelect.UserData = nil
+				else
+					difficultySelect.UserData = buildDifficultySections(difficulty)
 				end
+			end
 
-				if attuneConfig[difficultyData.ResourceUUID] then
-					difficultySelect.Selected = true
-					difficultySelect:OnActivate()
-				end
+			if attuneConfig[difficulty] then
+				difficultySelect.Selected = true
+				difficultySelect:OnActivate()
 			end
 		end
 
