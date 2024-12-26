@@ -1,9 +1,13 @@
 local function buildStatString(stringToModify, stringToAdd)
 	local result
-	if not stringToModify then
+	if not stringToModify or stringToModify == "" then
 		result = stringToAdd
 	else
-		result = stringToModify .. (stringToModify == "" and "" or ";") .. stringToAdd
+		if stringToModify:sub(-1) ~= ";" then
+			result = stringToModify .. ";" .. stringToAdd
+		else
+			result = stringToModify .. stringToAdd
+		end
 	end
 
 	return result
@@ -39,10 +43,10 @@ local statFunctions = {
 		return function(stat)
 			if stat.Rarity == rarity
 				and (category == "Total"
-					or (((string.find(stat.Slot, "Melee") or string.find(stat.Slot, "Ranged")) and category == "Weapons")
+					or (((string.find(stat.Slot, "Melee") or string.find(stat.Slot, "Ranged")) and category == "Weapon")
 						or (slotToCategory[stat.Slot] or "") == category))
 			then
-				local resourceString = string.format("%s_%s_Limit:1", rarity, category)
+				local resourceString = string.format("%s%sLimitAttunement:1", rarity, category)
 				if (not stat.UseCosts or not string.find(stat.UseCosts, resourceString)) then
 					stat.UseCosts = buildStatString(stat.UseCosts, resourceString)
 				end
@@ -66,10 +70,6 @@ end
 function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
 
-	---@type PassiveData
-	-- local attunementPassive = Ext.Stats.Get("ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
-	-- attunementPassive.Boosts = ""
-
 	local actionResources = ""
 
 	local functionsToReturn = {}
@@ -77,7 +77,7 @@ function BuildRelevantStatFunctions()
 		Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
 			difficultyRules.totalAttunementLimit)
 
-		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", difficultyRules.totalAttunementLimit))
+		actionResources = buildStatString(actionResources, string.format("Attunement:%s", difficultyRules.totalAttunementLimit))
 		table.insert(functionsToReturn, statFunctions["attunements"])
 	end
 
@@ -93,7 +93,7 @@ function BuildRelevantStatFunctions()
 				)
 
 				actionResources = buildStatString(actionResources,
-					string.format("ActionResource(%s_%s_Limit,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
+					string.format("%s%sLimit:%s", rarity, category, difficultyRules.rarityLimits[rarity][category]))
 
 				table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
 			end
@@ -104,29 +104,33 @@ function BuildRelevantStatFunctions()
 		---@type Character
 		local stat = Ext.Stats.Get(characterStat)
 
+		if stat.ActionResources then
+			stat.ActionResources = stat.ActionResources:gsub("[^;]*Attunement:%d+;?", "")
+		end
+
 		stat.ActionResources = buildStatString(stat.ActionResources, actionResources)
 		stat:Sync()
 	end
 
-	for _, player in pairs(Osi.DB_Players:Get(nil)) do
-		player = player[1]
-		if Osi.HasPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE") == 1 then
-			-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
-			---@type EntityHandle
-			local charEntity = Ext.Entity.Get(player)
+	-- for _, player in pairs(Osi.DB_Players:Get(nil)) do
+	-- 	player = player[1]
+	-- 	if Osi.HasPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE") == 1 then
+	-- 		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
+	-- 		---@type EntityHandle
+	-- 		local charEntity = Ext.Entity.Get(player)
 
-			local resources = charEntity.ActionResources.Resources
+	-- 		local resources = charEntity.ActionResources.Resources
 
-			-- TODO: Add a ModVar to track max number of attunement slots so when the difficulty is changed, we math this out correctly
-			local attunementResource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
-			attunementResource.MaxAmount = difficultyRules.totalAttunementLimit
-			attunementResource.Amount = difficultyRules.totalAttunementLimit
+	-- 		-- TODO: Add a ModVar to track max number of attunement slots so when the difficulty is changed, we math this out correctly
+	-- 		local attunementResource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
+	-- 		attunementResource.MaxAmount = difficultyRules.totalAttunementLimit
+	-- 		attunementResource.Amount = difficultyRules.totalAttunementLimit
 
-			charEntity:Replicate("ActionResources")
-		else
-			Osi.AddPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
-		end
-	end
+	-- 		charEntity:Replicate("ActionResources")
+	-- 	else
+	-- 		Osi.AddPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
+	-- 	end
+	-- end
 
 	return functionsToReturn
 end

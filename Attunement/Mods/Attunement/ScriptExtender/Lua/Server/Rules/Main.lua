@@ -8,7 +8,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 
 				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
 					stat.UseCosts = string.match(stat.UseCosts, "^[^;]*")
-					
+
 					for _, func in pairs(functionsToRun) do func(stat) end
 
 					stat:Sync()
@@ -39,26 +39,48 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 	end
 end)
 
+local cachedResources = {}
+
 Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
+	-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
+	---@type EntityHandle
+	local charEntity = Ext.Entity.Get(character)
+	local resources = charEntity.ActionResources.Resources
+
 	---@type ItemTemplate
 	local template = Ext.ServerTemplate.GetTemplate(string.sub(Osi.GetTemplate(item), -36))
 
 	---@type ItemStat
 	local stat = Ext.Stats.Get(template.Stats)
 
-	if string.find(stat.UseCosts, "Attunement") then
-		Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+	for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
+		local costName = string.match(cost, "^[^:]+")
 
-		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
-		---@type EntityHandle
-		local charEntity = Ext.Entity.Get(character)
+		local resource
+		if costName == "Attunement" then
+			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 
-		local resources = charEntity.ActionResources.Resources
+			resource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
+		elseif string.match(costName, "^" .. stat.Rarity .. ".*LimitAttunement$") then
+			local cachedResourceID = cachedResources[costName]
+			if not resource then
+				for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
+					---@type ResourceActionResource
+					local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
+					if resource.Name == costName then
+						cachedResources[costName] = actionResourceId
+						cachedResourceID = actionResourceId
+						break
+					end
+				end
+			end
+			resource = resources[cachedResourceID][1]
+		end
 
-		local attunementResource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
-		attunementResource.Amount = attunementResource.Amount + 1
-		attunementResource.MaxAmount = attunementResource.Amount
-
-		charEntity:Replicate("ActionResources")
+		if resource then
+			resource.Amount = resource.Amount + 1
+			resource.MaxAmount = resource.Amount
+		end
 	end
+	charEntity:Replicate("ActionResources")
 end)
