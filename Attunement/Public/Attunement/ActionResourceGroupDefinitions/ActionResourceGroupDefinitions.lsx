@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<save>
+    <version major="4" minor="0" revision="9" build="312"/>
+    <region id="ActionResourceGroupDefinitions">
+        <node id="root">
+            <children>
+                <node id="ActionResourceGroupDefinition">
+                    <attribute id="ActionResourceDefinitions" type="LSString" value="d640cb36-f24b-4e09-b53d-92947f6d010f;83286c73-051d-4f5e-972b-3d4488fed9ff;215e6268-313f-4c47-8df5-f80d80fb8975;5594e02d-4c30-42b6-97f8-f1632c9f3576"/>
+                    <attribute id="Name" type="LSString" value="UncommonRarityLimits"/>
+                    <attribute id="UUID" type="guid" value="8833a09d-c3a0-497d-8627-a90aada07803"/>
+                </node>
+                <node id="ActionResourceGroupDefinition">
+                    <attribute id="ActionResourceDefinitions" type="LSString" value="36a86759-85bd-40bf-a001-528a89985d24;638fc5cb-0d1a-4546-aecb-6183e6a6aff5;8164a8dd-ea35-40eb-a1ae-4f0584b5fd90;5f9388c9-129c-44ce-9ef3-05a8c9b5a971"/>
+                    <attribute id="Name" type="LSString" value="RareRarityLimits"/>
+                    <attribute id="UUID" type="guid" value="712b0e0f-32c8-4227-8273-e2015e99fc9e"/>
+                </node>
+                <node id="ActionResourceGroupDefinition">
+                    <attribute id="ActionResourceDefinitions" type="LSString" value="9e026aa2-9e9b-4140-a61d-3f504ad86591;a5bb9c2b-9d0b-4d39-ac79-a7bc46800b6b;c2a1731a-a4f2-44a9-b658-4852f2060297;721f87c2-7108-47c4-8019-c7946e79f3e9"/>
+                    <attribute id="Name" type="LSString" value="VeryRareRarityLimits"/>
+                    <attribute id="UUID" type="guid" value="f777a107-f184-4b25-aa73-3c51aac41858"/>
+                </node>
+                <node id="ActionResourceGroupDefinition">
+                    <attribute id="ActionResourceDefinitions" type="LSString" value="1ec0bea5-4827-4a1a-aadc-7204b5318533;c94a34ad-a05c-4af7-8954-0186b6903c5c;6f69763f-6af9-489d-9d25-a5e1d2369467;5f1d5bdc-605d-4cf0-abef-c2c8e1a2101a"/>
+                    <attribute id="Name" type="LSString" value="LegendaryRarityLimits"/>
+                    <attribute id="UUID" type="guid" value="d4cea0d6-9707-4dda-aa8d-21ebd9c0918c"/>
+                </node>
+            </children>
+        </node>
+    </region>
+</save>

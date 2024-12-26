@@ -76,6 +76,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 			difficultySelect.OnActivate = function()
 				if difficultySelect.UserData then
+					attuneConfig[difficulty].delete = true
+					attuneConfig[difficulty] = nil
 					difficultySelect.UserData:Destroy()
 					difficultySelect.UserData = nil
 				else

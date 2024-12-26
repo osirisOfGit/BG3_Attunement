@@ -1,5 +1,7 @@
 -- Can't assign any of these fields to local fields for convenience - breaks VSCode Lua type hints
 
+---@alias ItemStat Weapon|Armor|Object
+
 ConfigurationStructure.config.items = {}
 
 ConfigurationStructure.DynamicClassDefinitions.items = {}

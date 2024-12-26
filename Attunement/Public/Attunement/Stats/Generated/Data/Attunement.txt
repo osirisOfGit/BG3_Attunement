@@ -1,7 +1,8 @@
 new entry "ATTUNEMENT_ACTION_RESOURCE_PASSIVE"
 type "PassiveData"
 data "Properties" "IsHidden"
-data "Boosts" "ActionResource(Attunement,1,0)"
+// Set dynamically in SE
+data "Boosts" "" 
 
 new entry "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS"
 type "StatusData"
@@ -22,7 +23,6 @@ data "Icon" "Spell_Evocation_Light"
 data "StackId" "Attunement"
 //data "StatusPropertyFlags" "DisableCombatlog;DisablePortraitIndicator;IgnoreResting;ApplyToDead"
 data "IsUnique" ""
-
 
 new entry "ATTUNE_EQUIPMENT"
 type "SpellData"

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<save>
+    <version major="4" minor="3" revision="0" build="302"/>
+    <region id="ActionResourceDefinitions">
+        <node id="root">
+            <children>
+                <node id="ActionResourceDefinition">
+                    <attribute id="Description" type="TranslatedString" handle="h0f4bbae2be1645ee9a88c9ee2142340dc3g5" version="1"/>
+                    <attribute id="DisplayName" type="TranslatedString" handle="hbb57717600d946ca97e9b8057e8ab5ac0dg9" version="1"/>
+                    <attribute id="Error" type="TranslatedString" handle="hc45f783f425b4558b9551da613a4f211dd22" version="1"/>
+                    <attribute id="MaxLevel" type="uint32" value="0"/>
+                    <attribute id="Name" type="FixedString" value="Rare_Total_Limit"/>
+                    <attribute id="ReplenishType" type="FixedString" value="Never"/>
+                    <attribute id="ShowOnActionResourcePanel" type="bool" value="true"/>
+                    <attribute id="UUID" type="guid" value="36a86759-85bd-40bf-a001-528a89985d24"/>
+                </node>
+                <node id="ActionResourceDefinition">
+                    <attribute id="Description" type="TranslatedString" handle="h9e128345930c4ff6928e9e4eccf22cf8297a" version="1"/>
+                    <attribute id="DisplayName" type="TranslatedString" handle="hd69c90c59be14c89b1a926752a46cbb7e807" version="1"/>
+                    <attribute id="Error" type="TranslatedString" handle="hc45f783f425b4558b9551da613a4f211dd22" version="1"/>
+                    <attribute id="MaxLevel" type="uint32" value="0"/>
+                    <attribute id="Name" type="FixedString" value="Rare_Weapon_Limit"/>
+                    <attribute id="ReplenishType" type="FixedString" value="Never"/>
+                    <attribute id="ShowOnActionResourcePanel" type="bool" value="true"/>
+                    <attribute id="UUID" type="guid" value="638fc5cb-0d1a-4546-aecb-6183e6a6aff5"/>
+                </node>
+                <node id="ActionResourceDefinition">
+                    <attribute id="Description" type="TranslatedString" handle="h51c1d6f032ea482d9b826c33d3cfbac41653" version="1"/>
+                    <attribute id="DisplayName" type="TranslatedString" handle="h5d853d4da44544af8e5890faaf6d9108ab1f" version="1"/>
+                    <attribute id="Error" type="TranslatedString" handle="hc45f783f425b4558b9551da613a4f211dd22" version="1"/>
+                    <attribute id="MaxLevel" type="uint32" value="0"/>
+                    <attribute id="Name" type="FixedString" value="Rare_Armor_Limit"/>
+                    <attribute id="ReplenishType" type="FixedString" value="Never"/>
+                    <attribute id="ShowOnActionResourcePanel" type="bool" value="true"/>
+                    <attribute id="UUID" type="guid" value="8164a8dd-ea35-40eb-a1ae-4f0584b5fd90"/>
+                </node>
+                <node id="ActionResourceDefinition">
+                    <attribute id="Description" type="TranslatedString" handle="hffef9364ca5a4eaaa3e8050c4fbf7dd697a7" version="1"/>
+                    <attribute id="DisplayName" type="TranslatedString" handle="h408d607b57254ba0a9f3b92fcc582a9a1819" version="1"/>
+                    <attribute id="Error" type="TranslatedString" handle="hc45f783f425b4558b9551da613a4f211dd22" version="1"/>
+                    <attribute id="MaxLevel" type="uint32" value="0"/>
+                    <attribute id="Name" type="FixedString" value="Rare_Accessories_Limit"/>
+                    <attribute id="ReplenishType" type="FixedString" value="Never"/>
+                    <attribute id="ShowOnActionResourcePanel" type="bool" value="true"/>
+                    <attribute id="UUID" type="guid" value="5f9388c9-129c-44ce-9ef3-05a8c9b5a971"/>
+                </node>
+            </children>
+        </node>
+    </region>
+</save>

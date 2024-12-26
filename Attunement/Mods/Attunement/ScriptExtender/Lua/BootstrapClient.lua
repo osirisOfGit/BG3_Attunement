@@ -7,7 +7,6 @@ Ext.Events.StatsLoaded:Subscribe(function()
 	Logger:ClearLogFile()
 end)
 
-Ext.Require("Shared/RarityEnum.lua")
 Ext.Require("Shared/Configurations/_ConfigurationStructure.lua")
 
 ConfigurationStructure:InitializeConfig()

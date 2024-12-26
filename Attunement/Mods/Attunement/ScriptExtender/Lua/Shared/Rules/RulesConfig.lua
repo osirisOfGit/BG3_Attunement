@@ -11,10 +11,10 @@ RarityLimitCategories = {
 	[2] = "Weapons",
 	[3] = "Armor",
 	[4] = "Accessories",
-	Total = 1,
-	Weapons = 2,
-	Armor = 3,
-	Accessories = 4
+	Total = 12,
+	Weapons = 4,
+	Armor = 5,
+	Accessories = 3,
 }
 
 --- @class LimitRarityBySlotGroup

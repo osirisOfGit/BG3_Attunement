@@ -6,7 +6,7 @@ local function populateTemplateTable()
 	for templateName, template in pairs(Ext.ClientTemplate.GetAllRootTemplates()) do
 		---@cast template ItemTemplate
 		if template.TemplateType == "item" then
-			---@type Armor|Weapon|Object
+			---@type ItemStat
 			local stat = Ext.Stats.Get(template.Stats)
 
 			local name = template.DisplayName:Get() or templateName
@@ -19,7 +19,6 @@ local function populateTemplateTable()
 	-- Fewest amount of characters to most, so more relevant results are at the top of the list
 	table.sort(sortedRoots)
 end
-populateTemplateTable()
 
 -- Has to happen in the client since StatsLoaded fires before the server starts up, so... might as well do here
 Ext.Events.StatsLoaded:Subscribe(function()
@@ -27,25 +26,6 @@ Ext.Events.StatsLoaded:Subscribe(function()
 
 	for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
 		Ext.Stats.Get(statName).Rarity = raritySetting.New
-	end
-
-	for _, template in pairs(allItemRoots) do
-		---@type Weapon|Armor|Object
-		local stat = Ext.Stats.Get(template.Stats)
-
-		-- Friggen lua falsy logic
-		local shouldAttune = ConfigurationStructure.config.items.requiresAttunementOverrides[stat.Name]
-		if shouldAttune == nil then
-			shouldAttune = (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= "")
-		end
-
-		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
-			if not stat.UseCosts then
-				stat.UseCosts = "Attunement:1"
-			else
-				stat.UseCosts = stat.UseCosts .. (stat.UseCosts == "" and "" or ";") .. "Attunement:1"
-			end
-		end
 	end
 
 	Logger:BasicInfo("Successfully applied Rarity overrides")

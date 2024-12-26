@@ -74,6 +74,7 @@ ConfigurationStructure.DynamicClassDefinitions = {}
 --- @class Configuration
 ConfigurationStructure.config = generate_recursive_metatable({}, real_config_table)
 
+Ext.Require("Shared/RarityEnum.lua")
 Ext.Require("Shared/ItemConfig/ItemConfig.lua")
 Ext.Require("Shared/Rules/RulesConfig.lua")
 
