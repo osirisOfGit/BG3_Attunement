@@ -73,12 +73,14 @@ function BuildRelevantStatFunctions()
 	local attunementPassive = Ext.Stats.Get("ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
 	local actionResources = ""
 
+	local maxAmounts = {}
 	local functionsToReturn = {}
 	if difficultyRules.totalAttunementLimit < 12 then
 		Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
 			difficultyRules.totalAttunementLimit)
 
 		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", difficultyRules.totalAttunementLimit))
+		maxAmounts["Attunement"] = difficultyRules.totalAttunementLimit
 		table.insert(functionsToReturn, statFunctions["attunements"])
 	end
 
@@ -96,6 +98,8 @@ function BuildRelevantStatFunctions()
 				actionResources = buildStatString(actionResources,
 					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
 
+				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = difficultyRules.rarityLimits[rarity][category]
+
 				table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
 			end
 		end
@@ -103,36 +107,45 @@ function BuildRelevantStatFunctions()
 
 	attunementPassive.Boosts = actionResources
 	attunementPassive:Sync()
-	-- for _, characterStat in pairs(Ext.Stats.GetStats("Character")) do
-	-- 	---@type Character
-	-- 	local stat = Ext.Stats.Get(characterStat)
-
-	-- 	if stat.ActionResources then
-	-- 		stat.ActionResources = stat.ActionResources:gsub("[^;]*Attunement:%d+;?", "")
-	-- 	end
-
-	-- 	stat.ActionResources = buildStatString(stat.ActionResources, actionResources)
-	-- 	stat:Sync()
-	-- end
 
 	for _, player in pairs(Osi.DB_Players:Get(nil)) do
 		player = player[1]
-		if Osi.HasPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE") == 1 then
-			-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
-			---@type EntityHandle
-			local charEntity = Ext.Entity.Get(player)
+		---@type EntityHandle
+		local charEntity = Ext.Entity.Get(player)
 
-			-- local resources = charEntity.ActionResources.Resources
-
-			-- -- TODO: Add a ModVar to track max number of attunement slots so when the difficulty is changed, we math this out correctly
-			-- local attunementResource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
-			-- attunementResource.MaxAmount = difficultyRules.totalAttunementLimit
-			-- attunementResource.Amount = difficultyRules.totalAttunementLimit
-
-			charEntity:Replicate("ActionResources")
-		else
-			Osi.AddPassive(player, "ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
+		-- You would not believe the amount of shit i tried to land on this
+		local playerAmountTracker = TableUtils:DeeplyCopyTable(maxAmounts)
+		for _, boostEntry in pairs(charEntity.BoostsContainer.Boosts) do
+			if boostEntry.Type == "ActionResource" then
+				for _, boost in pairs(boostEntry.Boosts) do
+					local resourceBoost = boost.ActionResourceValueBoost
+					local resourceName = Ext.StaticData.Get(resourceBoost.ResourceUUID, "ActionResource").Name
+					if playerAmountTracker[resourceName] then
+						resourceBoost.Amount = playerAmountTracker[resourceName]
+						playerAmountTracker[resourceName] = nil
+					elseif string.match(resourceName, "^.*Attunement$") then
+						Osi.RemoveBoosts(player, string.format("ActionResource(%s,%s,0)", resourceName, resourceBoost.Amount), 0, "", player)
+					end
+				end
+				break
+			end
 		end
+
+		for maxAmountResource, maxAmount in pairs(playerAmountTracker) do
+			Osi.AddBoosts(player, string.format("ActionResource(%s,%s,0)", maxAmountResource, maxAmount), "", player)
+		end
+
+		for index, resource in pairs(charEntity.ActionResources.Resources) do
+			local resource = resource[1]
+			local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
+			if string.match(resourceName, "^.*Attunement$") then
+				if not maxAmounts[resourceName] then
+					Osi.AddBoosts(player, string.format("ActionResource(%s,0,0)", resourceName), "", player)
+				end
+			end
+		end
+
+		charEntity:Replicate("ActionResources")
 	end
 
 	return functionsToReturn
