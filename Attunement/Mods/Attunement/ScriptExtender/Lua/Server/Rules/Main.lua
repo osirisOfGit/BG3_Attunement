@@ -59,11 +59,10 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 		local resource
 		if costName == "Attunement" then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
-
 			resource = resources["0869d45b-9bdf-4315-aeae-da7fb6a7ca09"][1]
 		elseif string.match(costName, "^.*LimitAttunement$") then
 			local cachedResourceID = cachedResources[costName]
-			if not resource then
+			if not cachedResourceID then
 				for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
 					---@type ResourceActionResource
 					local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
