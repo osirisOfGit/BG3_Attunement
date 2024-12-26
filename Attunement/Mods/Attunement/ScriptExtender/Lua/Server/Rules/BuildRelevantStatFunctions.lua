@@ -108,44 +108,41 @@ function BuildRelevantStatFunctions()
 	attunementPassive.Boosts = actionResources
 	attunementPassive:Sync()
 
-	for _, player in pairs(Osi.DB_Players:Get(nil)) do
-		player = player[1]
-		---@type EntityHandle
-		local charEntity = Ext.Entity.Get(player)
+	for _, charEntity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ActionResources")) do
+		if charEntity.Uuid and charEntity.CanBeDisarmed then
+			local character = charEntity.Uuid.EntityUuid
+			-- You would not believe the amount of shit i tried to land on this
+			local playerAmountTracker = TableUtils:DeeplyCopyTable(maxAmounts)
+			for _, boostEntry in pairs(charEntity.BoostsContainer.Boosts) do
+				if boostEntry.Type == "ActionResource" then
+					for _, boost in pairs(boostEntry.Boosts) do
+						local resourceBoost = boost.ActionResourceValueBoost
+						local resourceName = Ext.StaticData.Get(resourceBoost.ResourceUUID, "ActionResource").Name
+						if playerAmountTracker[resourceName] then
+							resourceBoost.Amount = playerAmountTracker[resourceName]
+							playerAmountTracker[resourceName] = nil
+						elseif string.match(resourceName, "^.*Attunement$") then
+							Osi.RemoveBoosts(character, string.format("ActionResource(%s,%s,0)", resourceName, resourceBoost.Amount), 0, "", character)
+						end
+					end
+					break
+				end
+			end
 
-		-- You would not believe the amount of shit i tried to land on this
-		local playerAmountTracker = TableUtils:DeeplyCopyTable(maxAmounts)
-		for _, boostEntry in pairs(charEntity.BoostsContainer.Boosts) do
-			if boostEntry.Type == "ActionResource" then
-				for _, boost in pairs(boostEntry.Boosts) do
-					local resourceBoost = boost.ActionResourceValueBoost
-					local resourceName = Ext.StaticData.Get(resourceBoost.ResourceUUID, "ActionResource").Name
-					if playerAmountTracker[resourceName] then
-						resourceBoost.Amount = playerAmountTracker[resourceName]
-						playerAmountTracker[resourceName] = nil
-					elseif string.match(resourceName, "^.*Attunement$") then
-						Osi.RemoveBoosts(player, string.format("ActionResource(%s,%s,0)", resourceName, resourceBoost.Amount), 0, "", player)
+			for maxAmountResource, maxAmount in pairs(playerAmountTracker) do
+				Osi.AddBoosts(character, string.format("ActionResource(%s,%s,0)", maxAmountResource, maxAmount), "", character)
+			end
+
+			for index, resource in pairs(charEntity.ActionResources.Resources) do
+				local resource = resource[1]
+				local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
+				if string.match(resourceName, "^.*Attunement$") then
+					if not maxAmounts[resourceName] then
+						Osi.AddBoosts(character, string.format("ActionResource(%s,0,0)", resourceName), "", character)
 					end
 				end
-				break
 			end
 		end
-
-		for maxAmountResource, maxAmount in pairs(playerAmountTracker) do
-			Osi.AddBoosts(player, string.format("ActionResource(%s,%s,0)", maxAmountResource, maxAmount), "", player)
-		end
-
-		for index, resource in pairs(charEntity.ActionResources.Resources) do
-			local resource = resource[1]
-			local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
-			if string.match(resourceName, "^.*Attunement$") then
-				if not maxAmounts[resourceName] then
-					Osi.AddBoosts(player, string.format("ActionResource(%s,0,0)", resourceName), "", player)
-				end
-			end
-		end
-
-		charEntity:Replicate("ActionResources")
 	end
 
 	return functionsToReturn
