@@ -79,6 +79,7 @@ function BuildRelevantStatFunctions()
 		table.insert(functionsToReturn, statFunctions["attunements"])
 	end
 
+	local addedBoost = false
 	for _, rarity in ipairs(RarityEnum) do
 		for _, category in ipairs(RarityLimitCategories) do
 			local categoryMaxSlots = RarityLimitCategories[category]
@@ -89,8 +90,12 @@ function BuildRelevantStatFunctions()
 					difficultyRules.rarityLimits[rarity][category],
 					categoryMaxSlots
 				)
-				attunementPassive.Boosts = buildStatString(attunementPassive.Boosts,
-					string.format("ActionResource(%s_%s_Limit,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
+
+				if not addedBoost then
+					attunementPassive.Boosts = buildStatString(attunementPassive.Boosts,
+						string.format("ActionResource(%s_%s_Limit,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
+					addedBoost = true
+				end
 				table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
 			end
 		end

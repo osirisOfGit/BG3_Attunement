@@ -1,14 +1,18 @@
 Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
 	local functionsToRun = BuildRelevantStatFunctions()
-	for _, template in pairs(Ext.Template.GetAllRootTemplates()) do
-		if template.TemplateType == "item" then
-			---@type ItemStat
-			local stat = Ext.Stats.Get(template.Stats)
+	if #functionsToRun > 0 then
+		for _, template in pairs(Ext.Template.GetAllRootTemplates()) do
+			if template.TemplateType == "item" then
+				---@type ItemStat
+				local stat = Ext.Stats.Get(template.Stats)
 
-			if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
-				for _, func in pairs(functionsToRun) do func(stat) end
+				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
+					stat.UseCosts = string.match(stat.UseCosts, "^[^;]*")
+					
+					for _, func in pairs(functionsToRun) do func(stat) end
 
-				stat:Sync()
+					stat:Sync()
+				end
 			end
 		end
 	end
