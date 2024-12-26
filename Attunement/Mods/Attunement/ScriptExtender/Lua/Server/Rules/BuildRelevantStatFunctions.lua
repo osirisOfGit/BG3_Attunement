@@ -39,7 +39,7 @@ local statFunctions = {
 		return function(stat)
 			if stat.Rarity == rarity
 				and (category == "Total"
-					or ((string.find(stat.Slot, "Melee") or (string.find(stat.Slot, "Ranged")) and category == "Weapons")
+					or (((string.find(stat.Slot, "Melee") or string.find(stat.Slot, "Ranged")) and category == "Weapons")
 						or (slotToCategory[stat.Slot] or "") == category))
 			then
 				local resourceString = string.format("%s_%s_Limit:1", rarity, category)
