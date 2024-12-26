@@ -67,19 +67,20 @@ function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
 
 	---@type PassiveData
-	local attunementPassive = Ext.Stats.Get("ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
-	attunementPassive.Boosts = ""
+	-- local attunementPassive = Ext.Stats.Get("ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
+	-- attunementPassive.Boosts = ""
+
+	local actionResources = ""
 
 	local functionsToReturn = {}
 	if difficultyRules.totalAttunementLimit < 12 then
 		Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
 			difficultyRules.totalAttunementLimit)
 
-		attunementPassive.Boosts = buildStatString(attunementPassive.Boosts, string.format("ActionResource(Attunement,%s,0)", difficultyRules.totalAttunementLimit))
+		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", difficultyRules.totalAttunementLimit))
 		table.insert(functionsToReturn, statFunctions["attunements"])
 	end
 
-	local addedBoost = false
 	for _, rarity in ipairs(RarityEnum) do
 		for _, category in ipairs(RarityLimitCategories) do
 			local categoryMaxSlots = RarityLimitCategories[category]
@@ -91,17 +92,21 @@ function BuildRelevantStatFunctions()
 					categoryMaxSlots
 				)
 
-				if not addedBoost then
-					attunementPassive.Boosts = buildStatString(attunementPassive.Boosts,
-						string.format("ActionResource(%s_%s_Limit,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
-					addedBoost = true
-				end
+				actionResources = buildStatString(actionResources,
+					string.format("ActionResource(%s_%s_Limit,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
+
 				table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
 			end
 		end
 	end
 
-	attunementPassive:Sync()
+	for _, characterStat in pairs(Ext.Stats.GetStats("Character")) do
+		---@type Character
+		local stat = Ext.Stats.Get(characterStat)
+
+		stat.ActionResources = buildStatString(stat.ActionResources, actionResources)
+		stat:Sync()
+	end
 
 	for _, player in pairs(Osi.DB_Players:Get(nil)) do
 		player = player[1]
