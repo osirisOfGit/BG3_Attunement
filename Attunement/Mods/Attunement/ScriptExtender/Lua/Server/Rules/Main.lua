@@ -40,6 +40,7 @@ end)
 Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 	if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
 		Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+		Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
 	end
 end)
 
@@ -51,7 +52,7 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 		---@type Weapon|Armor|Object
 		local stat = Ext.Stats.Get(template.Stats)
 
-		if string.find(stat.UseConditions, "ATTUNEMENT_IS_ATTUNED_STATUS") and Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 0 then
+		if string.find(stat.UseCosts, "Attunement") then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 		end
 	end
@@ -64,8 +65,8 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 	---@type Weapon|Armor|Object
 	local stat = Ext.Stats.Get(template.Stats)
 
-	if string.find(stat.UseConditions, "ATTUNEMENT_IS_ATTUNED_STATUS") then
-		-- Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+	if string.find(stat.UseCosts, "Attunement") then
+		Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 
 		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
 		---@type EntityHandle

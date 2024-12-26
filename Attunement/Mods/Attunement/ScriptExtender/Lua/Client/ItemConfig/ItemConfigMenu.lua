@@ -39,11 +39,11 @@ Ext.Events.StatsLoaded:Subscribe(function()
 			shouldAttune = (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= "")
 		end
 
-		if shouldAttune then
-			if not stat.UseConditions then
-				stat.UseConditions = "HasStatus('ATTUNEMENT_IS_ATTUNED_STATUS')"
+		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
+			if not stat.UseCosts then
+				stat.UseCosts = "Attunement:1"
 			else
-				stat.UseConditions = stat.UseConditions .. (stat.UseConditions == "" and "" or ";") .. "HasStatus('ATTUNEMENT_IS_ATTUNED_STATUS')"
+				stat.UseCosts = stat.UseCosts .. (stat.UseCosts == "" and "" or ";") .. "Attunement:1"
 			end
 		end
 	end
@@ -175,7 +175,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 							-- Friggen lua falsy logic
 							local checkTheBox = itemConfig.requiresAttunementOverrides[itemStat.Name]
 							if checkTheBox == nil then
-								checkTheBox = string.find(itemStat.UseConditions, "ATTUNEMENT_IS_ATTUNED_STATUS") ~= nil
+								checkTheBox = string.find(itemStat.UseCosts, "Attunement") ~= nil
 							end
 							local requiresAttunement = attunmentCell:AddCheckbox("", checkTheBox)
 
@@ -189,7 +189,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 								resetAttunement.Visible = false
 							end
 							requiresAttunement.OnChange = function()
-								if requiresAttunement.Checked == (string.find(itemStat.UseConditions, "Attunement") ~= nil) then
+								if requiresAttunement.Checked == (string.find(itemStat.UseCosts, "Attunement") ~= nil) then
 									itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
 									resetAttunement.Visible = false
 								else
