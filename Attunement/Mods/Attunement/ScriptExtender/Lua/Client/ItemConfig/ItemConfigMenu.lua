@@ -36,6 +36,41 @@ Ext.Events.StatsLoaded:Subscribe(function()
 	end
 end)
 
+---@param tooltip ExtuiTooltip
+---@param status ItemStat
+---@param itemTemplate ItemTemplate
+local function BuildStatusTooltip(tooltip, status, itemTemplate)
+	tooltip:AddText("\n")
+	tooltip:AddText("Item Display Name: " .. (itemTemplate.DisplayName:Get() or "N/A"))
+	tooltip:AddText("Stat Name: " .. status.Name)
+
+	-- local description = itemTemplate.Description:Get() or "N/A"
+	-- -- Getting rid of all content contained in <>, like <LsTags../> and <br/>
+	-- description = string.gsub(description, "<.->", "")
+	-- local desc = tooltip:AddText("Description: " .. description)
+	-- desc.TextWrapPos = 600
+
+	if status.Using ~= "" then
+		tooltip:AddText("Using: " .. status.Using)
+	end
+
+	if status.Slot ~= "" then
+		tooltip:AddText("Slot: " .. status.Slot)
+	end	
+	
+	if status.PassivesOnEquip ~= "" then
+		tooltip:AddText("PassivesOnEquip: " .. status.PassivesOnEquip)
+	end
+
+	if status.StatusOnEquip ~= "" then
+		tooltip:AddText("StatusOnEquip: " .. status.StatusOnEquip)
+	end
+
+	if status.Boosts ~= "" then
+		tooltip:AddText("Boosts: " .. status.Boosts).TextWrapPos = 600
+	end
+end
+
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
 	function(tabHeader)
@@ -43,6 +78,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 		local itemConfig = ConfigurationStructure.config.items
 
+		tabHeader:AddText("Reload (restart unnecessary) to see changes on existing items")
 		--#region Search
 		tabHeader:AddText("Items with 'Common' rarity are filtered out")
 
@@ -117,6 +153,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 							icon.Border = RarityColors[itemStat.Rarity]
 
 							nameCell:AddText(templateName).SameLine = true
+
+							BuildStatusTooltip(nameCell:Tooltip(), itemStat, itemTemplate)
 
 							--#region Rarity
 							local rarityCell = newRow:AddCell()

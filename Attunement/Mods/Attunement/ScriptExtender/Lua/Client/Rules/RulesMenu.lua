@@ -5,7 +5,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local attuneConfig = ConfigurationStructure.config.rules
 
-		tabHeader:AddText("All configurations are per-character's equipment")
+		tabHeader:AddText("All configurations are per-character's equipment - reload your save to apply changes")
 
 		local difficultyGroup = tabHeader:AddGroup("Difficulties")
 
