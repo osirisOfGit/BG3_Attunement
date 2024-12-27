@@ -91,6 +91,12 @@ end
 
 function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
+
+	if not difficultyRules then
+		Logger:BasicWarning("Difficulty rules haven't been configured yet, meaning this is your first time loading. Reload to pick up the functionality!")
+		return {}
+	end
+
 	local actionResources = ""
 
 	local enabled = MCM.Get("enabled")

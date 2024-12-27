@@ -9,10 +9,15 @@ local function populateTemplateTable()
 			---@type ItemStat
 			local stat = Ext.Stats.Get(template.Stats)
 
-			local name = template.DisplayName:Get() or templateName
-			if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") and not allItemRoots[name] then
-				table.insert(sortedRoots, name)
-				allItemRoots[name] = template
+			local success, error = pcall(function ()
+				local name = template.DisplayName:Get() or templateName
+				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") and not allItemRoots[name] then
+					table.insert(sortedRoots, name)
+					allItemRoots[name] = template
+				end
+			end)
+			if not success then
+				Logger:BasicWarning("Couldn't load stat %s into the table due to %s", stat.Name, error)
 			end
 		end
 	end
