@@ -1,3 +1,8 @@
+Ext.Vars.RegisterModVariable(ModuleUUID, "Config_State_Tracker", {
+	Server = true,
+	Client = false
+})
+
 local function buildStatString(stringToModify, stringToAdd)
 	local result
 	if not stringToModify or stringToModify == "" then
@@ -34,6 +39,10 @@ local statFunctions = {
 
 		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
 			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
+			local existingItem = Osi.GetItemByTemplateInPartyInventory(stat.RootTemplate, Osi.GetHostCharacter())
+			if existingItem then
+				Osi.ApplyStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
 		end
 	end,
 	---@param rarity Rarity
@@ -69,8 +78,6 @@ end
 
 function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
-	---@type PassiveData
-	local attunementPassive = Ext.Stats.Get("ATTUNEMENT_ACTION_RESOURCE_PASSIVE")
 	local actionResources = ""
 
 	local maxAmounts = {}
@@ -105,8 +112,15 @@ function BuildRelevantStatFunctions()
 		end
 	end
 
-	attunementPassive.Boosts = actionResources
-	attunementPassive:Sync()
+	local configState = Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker or {}
+
+	if TableUtils:CompareLists(configState, maxAmounts) then
+		Logger:BasicInfo("Configuration hasn't changed for this save - skipping rest of initialization")
+		return {}
+	else
+		Logger:BasicInfo("Configuration has been changed for this save - proceeeding with the rest of initialization")
+		Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker = maxAmounts
+	end
 
 	for _, charEntity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ActionResources")) do
 		if charEntity.Uuid then
@@ -138,7 +152,7 @@ function BuildRelevantStatFunctions()
 			end
 
 			local resources = charEntity.ActionResources.Resources
-			for index, resource in pairs(resources) do
+			for _, resource in pairs(resources) do
 				local resource = resource[1]
 				local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
 				if string.match(resourceName, "^.*Attunement$") then

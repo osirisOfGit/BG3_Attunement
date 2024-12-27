@@ -1,9 +1,3 @@
-new entry "ATTUNEMENT_ACTION_RESOURCE_PASSIVE"
-type "PassiveData"
-data "Properties" "IsHidden"
-// Set dynamically in SE
-data "Boosts" "" 
-
 new entry "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS"
 type "StatusData"
 data "StatusType" "BOOST"
