@@ -21,3 +21,6 @@ ConfigurationStructure.config.items.rarityOverrides = {}
 
 ---@type { [StatName] : boolean}
 ConfigurationStructure.config.items.requiresAttunementOverrides = {}
+
+---@type Rarity
+ConfigurationStructure.config.items.attunementRarityThreshold = RarityEnum[2]

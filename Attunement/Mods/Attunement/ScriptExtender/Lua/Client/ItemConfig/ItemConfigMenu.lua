@@ -20,6 +20,8 @@ local function populateTemplateTable()
 	table.sort(sortedRoots)
 end
 
+populateTemplateTable()
+
 -- Has to happen in the client since StatsLoaded fires before the server starts up, so... might as well do here
 Ext.Events.StatsLoaded:Subscribe(function()
 	populateTemplateTable()
@@ -43,6 +45,27 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 		--#region Search
 		tabHeader:AddText("Items with 'Common' rarity are filtered out")
+
+		tabHeader:AddText("Items with Rarity Level")
+		local rarityThreshold = tabHeader:AddCombo("")
+		rarityThreshold.SameLine = true
+		rarityThreshold.WidthFitPreview = true
+		local opts = {}
+		local selectIndex = 0
+		for _, rarity in ipairs(RarityEnum) do
+			if rarity == itemConfig.attunementRarityThreshold then
+				selectIndex = #opts
+			end
+			table.insert(opts, rarity)
+		end
+		rarityThreshold.Options = opts
+		rarityThreshold.SelectedIndex = selectIndex
+		rarityThreshold.OnChange = function(rarityThresholdCombo)
+			itemConfig.attunementRarityThreshold = rarityThresholdCombo.Options[rarityThresholdCombo.SelectedIndex + 1]
+		end
+
+		tabHeader:AddText("or above can default to requiring Attunement").SameLine = true
+
 		local searchInput = tabHeader:AddInputText("")
 		searchInput.Hint = "Case-insensitive"
 		searchInput.AutoSelectAll = true
@@ -52,7 +75,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		resultsTable.Hideable = true
 		resultsTable.Visible = false
 		resultsTable.ScrollY = true
-		resultsTable.SizingFixedSame = true
+		resultsTable.SizingStretchSame = true
 		resultsTable.RowBg = true
 
 		local headerRow = resultsTable:AddRow()
@@ -156,7 +179,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 							-- Friggen lua falsy logic
 							local checkTheBox = itemConfig.requiresAttunementOverrides[itemStat.Name]
 							if checkTheBox == nil then
-								checkTheBox = string.find(itemStat.UseCosts, "Attunement") ~= nil
+								-- Friggen lua falsy logic
+								checkTheBox = RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")
 							end
 							local requiresAttunement = attunmentCell:AddCheckbox("", checkTheBox)
 
@@ -170,7 +194,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 								resetAttunement.Visible = false
 							end
 							requiresAttunement.OnChange = function()
-								if requiresAttunement.Checked == (string.find(itemStat.UseCosts, "Attunement") ~= nil) then
+								if requiresAttunement.Checked == (RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")) then
 									itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
 									resetAttunement.Visible = false
 								else

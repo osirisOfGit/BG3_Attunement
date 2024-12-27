@@ -35,7 +35,7 @@ local statFunctions = {
 		-- Friggen lua falsy logic
 		local shouldAttune = ConfigurationStructure.config.items.requiresAttunementOverrides[stat.Name]
 		if shouldAttune == nil then
-			shouldAttune = (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= "")
+			shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigurationStructure.config.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
 		end
 
 		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
@@ -43,6 +43,18 @@ local statFunctions = {
 			local existingItem = Osi.GetItemByTemplateInPartyInventory(stat.RootTemplate, Osi.GetHostCharacter())
 			if existingItem then
 				Osi.ApplyStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
+		end
+
+		if not shouldAttune then
+			local existingItem = Osi.GetItemByTemplateInPartyInventory(stat.RootTemplate, Osi.GetHostCharacter())
+			if existingItem then
+				if Osi.HasActiveStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+					Osi.RemoveStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
+				end
+				if Osi.HasActiveStatus(existingItem, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+					Osi.RemoveStatus(existingItem, "ATTUNEMENT_IS_ATTUNED_STATUS")
+				end
 			end
 		end
 	end,
@@ -107,13 +119,13 @@ function BuildRelevantStatFunctions()
 			local categoryMaxSlots = RarityLimitCategories[category]
 			if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
 				if enabled then
-				Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
-					rarity,
-					category,
-					difficultyRules.rarityLimits[rarity][category],
-					categoryMaxSlots
-				)
-			end
+					Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
+						rarity,
+						category,
+						difficultyRules.rarityLimits[rarity][category],
+						categoryMaxSlots
+					)
+				end
 
 				actionResources = buildStatString(actionResources,
 					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))

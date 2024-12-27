@@ -143,12 +143,15 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 		---@type ItemStat
 		local stat = Ext.Stats.Get(template.Stats)
 
+		local foundAttunement = false
+
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
 
 			local resource
 			if string.match(costName, "^.*Attunement$") then
 				if costName == "Attunement" then
+					foundAttunement = true
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
@@ -170,7 +173,16 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 					resource.MaxAmount = resource.Amount
 				end
 			end
-			charEntity:Replicate("ActionResources")
+		end
+		charEntity:Replicate("ActionResources")
+
+		if not foundAttunement then
+			if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+				Osi.RemoveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
+			end
+			if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+				Osi.RemoveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS")
+			end
 		end
 	end
 end)
