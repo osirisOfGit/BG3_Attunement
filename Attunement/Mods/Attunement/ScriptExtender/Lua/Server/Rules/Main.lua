@@ -148,7 +148,7 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			if costName == "Attunement" then
 				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 			end
-			
+
 			if not next(playerSubs) then
 				local cachedResourceID = cachedResources[costName]
 				if not cachedResourceID then
