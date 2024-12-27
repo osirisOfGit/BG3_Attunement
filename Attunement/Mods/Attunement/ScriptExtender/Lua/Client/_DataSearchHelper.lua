@@ -46,7 +46,7 @@ local function BuildStatusesForData(input, callback, dataTable, displayNameFunc,
 	return recordCount > 0
 end
 
----@param parent ExtuiTabItem|ExtuiCollapsingHeader
+---@param parent ExtuiTabItem|ExtuiCollapsingHeader|ExtuiTreeParent
 ---@param dataTable table
 ---@param displayNameFunc function
 ---@param onClick function

@@ -1,30 +1,44 @@
-Ext.Vars.RegisterModVariable(ModuleUUID, "Injury_Report", {
-	Server = true,
-	Client = true,
-	WriteableOnServer = true,
-	WriteableOnClient = true,
-	SyncToClient = true,
-	SyncToServer = true
-})
-
 Ext.Require("Shared/Utils/_FileUtils.lua")
 Ext.Require("Shared/Utils/_ModUtils.lua")
 Ext.Require("Shared/Utils/_Logger.lua")
 Ext.Require("Shared/Utils/_TableUtils.lua")
 
-Logger:ClearLogFile()
-
--- Ext.Require("Server/ECSPrinter.lua")
-
-Ext.Require("Server/_DifficultyClassMap.lua")
-Ext.Require("Server/_EventCoordinator.lua")
-
 Ext.Require("Shared/Configurations/_ConfigurationStructure.lua")
 Ext.Require("Server/_ConfigManager.lua")
+Ext.Require("Server/Rules/Main.lua")
+Ext.Require("Server/Rules/BuildRelevantStatFunctions.lua")
 
-Ext.Require("Shared/Attunement/_ConfigHelper.lua")
-Ext.Require("Server/Attunement/_Damage.lua")
-Ext.Require("Server/Attunement/_RandomInjuryOnCondition.lua")
-Ext.Require("Server/Attunement/_Healing.lua")
-Ext.Require("Server/Attunement/_ApplyOnStatus.lua")
-Ext.Require("Server/Attunement/_RemoveOnStatus.lua")
+
+Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)
+	if not payload or payload.modUUID ~= ModuleUUID or not payload.settingId then
+		return
+	end
+
+	if payload.settingId == "enabled" then
+		for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
+			local stat = Ext.Stats.Get(statName)
+			stat.Rarity = payload.value and raritySetting.New or raritySetting.Original
+			stat:Sync()
+		end
+
+		---@type SpellData
+		local isAttunedStat = Ext.Stats.Get("ATTUNEMENT_IS_ATTUNED_STATUS")
+		if payload.value then
+			isAttunedStat.StatusPropertyFlags = {}
+		else
+			isAttunedStat.StatusPropertyFlags = { "DisableCombatlog", "DisablePortraitIndicator" }
+		end
+		isAttunedStat:Sync()
+
+		---@type SpellData
+		local requiresAttuningStat = Ext.Stats.Get("ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
+		if payload.value then
+			requiresAttuningStat.StatusPropertyFlags = {"DisableOverhead", "DisableCombatlog"}
+		else
+			requiresAttuningStat.StatusPropertyFlags = { "DisableCombatlog", "DisablePortraitIndicator" }
+		end
+		requiresAttuningStat:Sync()
+
+		Logger:BasicInfo("Successfully %s item rarities", payload.value and "overwrote" or "reverted")
+	end
+end)
