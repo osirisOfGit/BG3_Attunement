@@ -55,9 +55,9 @@ local statFunctions = {
 	end,
 }
 
--- Thanks Focus
 ---@return AttunementRules
 local function GetDifficulty()
+	-- Thanks Focus
 	local difficulty = Osi.GetRulesetModifierString("cac2d8bd-c197-4a84-9df1-f86f54ad4521")
 	if difficulty == "HARD" and Osi.GetRulesetModifierBool("338450d9-d77d-4950-9e1e-0e7f12210bb3") == 1 then
 		difficulty = "HONOUR"
@@ -109,9 +109,13 @@ function BuildRelevantStatFunctions()
 	attunementPassive:Sync()
 
 	for _, charEntity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ActionResources")) do
-		if charEntity.Uuid and charEntity.CanBeDisarmed then
+		if charEntity.Uuid then
 			local character = charEntity.Uuid.EntityUuid
+
 			-- You would not believe the amount of shit i tried to land on this
+			-- TLDR: Stats modified after StatsLoaded don't update the GUI for things using those stats that are already in the gameworld.
+			-- e.g. adding a passive to CharacterStats gives them the initial passive, but changing the passive boosts on LevelGameplayReady doesn't show the resources until a reload
+			-- So, shortcutting the process by just applying/removing boosts directly, which does update the GUI
 			local playerAmountTracker = TableUtils:DeeplyCopyTable(maxAmounts)
 			for _, boostEntry in pairs(charEntity.BoostsContainer.Boosts) do
 				if boostEntry.Type == "ActionResource" then
@@ -133,7 +137,8 @@ function BuildRelevantStatFunctions()
 				Osi.AddBoosts(character, string.format("ActionResource(%s,%s,0)", maxAmountResource, maxAmount), "", character)
 			end
 
-			for index, resource in pairs(charEntity.ActionResources.Resources) do
+			local resources = charEntity.ActionResources.Resources
+			for index, resource in pairs(resources) do
 				local resource = resource[1]
 				local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
 				if string.match(resourceName, "^.*Attunement$") then

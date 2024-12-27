@@ -1,3 +1,5 @@
+local cachedResources = {}
+local playerSubs = {}
 Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
 	local functionsToRun = BuildRelevantStatFunctions()
 	if #functionsToRun > 0 then
@@ -15,6 +17,88 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 				end
 			end
 		end
+	end
+
+	for _, player in pairs(Osi.DB_Players:Get(nil)) do
+		player = player[1]
+
+		---@type EntityHandle
+		local playerEntity = Ext.Entity.Get(player)
+
+		---@diagnostic disable-next-line: param-type-mismatch
+		playerSubs[player] = Ext.Entity.Subscribe("ActionResources", function()
+			local timerRef
+			if timerRef then
+				Ext.Timer.Cancel(timerRef)
+			end
+			timerRef = Ext.Timer.WaitFor(150, function()
+				Ext.Entity.Unsubscribe(playerSubs[player])
+				timerRef = nil
+
+				Logger:BasicInfo("Checking equipped items for %s", player)
+				local resources = playerEntity.ActionResources.Resources
+
+				local sentNotification = false
+				for itemSlot, _ in pairs(Ext.Enums.ItemSlot) do
+					itemSlot = tostring(itemSlot)
+					-- Getting this aligned with Osi.EQUIPMENTSLOTNAME, because, what the heck Larian (╯°□°）╯︵ ┻━┻
+					if itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeMainHand] then
+						itemSlot = "Melee Main Weapon"
+					elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeOffHand] then
+						itemSlot = "Melee Offhand Weapon"
+					elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedMainHand] then
+						itemSlot = "Ranged Main Weapon"
+					elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedOffHand] then
+						itemSlot = "Ranged Offhand Weapon"
+					end
+
+					local equippedItem = Osi.GetEquippedItem(player, itemSlot)
+					if equippedItem then
+						---@type ItemTemplate
+						local template = Ext.ServerTemplate.GetTemplate(string.sub(Osi.GetTemplate(equippedItem), -36))
+
+						---@type ItemStat
+						local stat = Ext.Stats.Get(template.Stats)
+
+						for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
+							local costName = string.match(cost, "^[^:]+")
+
+							local resource
+							if string.match(costName, "^.*Attunement$") then
+								local cachedResourceID = cachedResources[costName]
+								if not cachedResourceID then
+									for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
+										---@type ResourceActionResource
+										local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
+										if resource.Name == costName then
+											cachedResources[costName] = actionResourceId
+											cachedResourceID = actionResourceId
+											break
+										end
+									end
+								end
+								resource = resources[cachedResourceID][1]
+								if resource.Amount == 0 then
+									Osi.Unequip(player, equippedItem)
+									if not sentNotification then
+										sentNotification = true
+										Osi.ShowNotification(player, "Items were unequipped due to exceeding Attunement/Rarity Equip Limits")
+									end
+								else
+									resource.Amount = resource.Amount - 1
+									resource.MaxAmount = resource.Amount
+								end
+							end
+						end
+					end
+				end
+				playerEntity:Replicate("ActionResources")
+			end)
+		end, playerEntity)
+
+		Ext.Timer.WaitFor(1000, function ()
+			Ext.Entity.Unsubscribe(playerSubs[player])
+		end)
 	end
 end)
 
@@ -38,8 +122,6 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 		end
 	end
 end)
-
-local cachedResources = {}
 
 Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 	-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
