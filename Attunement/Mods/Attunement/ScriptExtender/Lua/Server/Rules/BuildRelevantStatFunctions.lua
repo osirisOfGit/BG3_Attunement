@@ -25,7 +25,8 @@ local slotToCategory = {
 	["Boots"] = "Armor",
 	["Gloves"] = "Armor",
 	["Amulet"] = "Accessories",
-	["Ring"] = "Accessories"
+	["Ring"] = "Accessories",
+	["MusicalInstrument"] = "Accessories"
 }
 
 local statFunctions = {
@@ -126,7 +127,7 @@ function BuildRelevantStatFunctions()
 		if charEntity.Uuid then
 			local character = charEntity.Uuid.EntityUuid
 
-			-- You would not believe the amount of shit i tried to land on this
+			-- You would not believe the amount of shit i tried before i landed on this
 			-- TLDR: Stats modified after StatsLoaded don't update the GUI for things using those stats that are already in the gameworld.
 			-- e.g. adding a passive to CharacterStats gives them the initial passive, but changing the passive boosts on LevelGameplayReady doesn't show the resources until a reload
 			-- So, shortcutting the process by just applying/removing boosts directly, which does update the GUI
