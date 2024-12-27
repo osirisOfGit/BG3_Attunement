@@ -81,34 +81,48 @@ function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
 	local actionResources = ""
 
+	local enabled = MCM.Get("enabled")
+
+	if not enabled then
+		Logger:BasicInfo("Functionality is disabled - disabling all resources")
+	end
+
 	local maxAmounts = {}
 	local functionsToReturn = {}
 	if difficultyRules.totalAttunementLimit < 12 then
-		Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
-			difficultyRules.totalAttunementLimit)
+		if enabled then
+			Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
+				difficultyRules.totalAttunementLimit)
+		end
 
-		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", difficultyRules.totalAttunementLimit))
-		maxAmounts["Attunement"] = difficultyRules.totalAttunementLimit
-		table.insert(functionsToReturn, statFunctions["attunements"])
+		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", enabled and difficultyRules.totalAttunementLimit or 0))
+		maxAmounts["Attunement"] = enabled and difficultyRules.totalAttunementLimit or 0
+		if enabled then
+			table.insert(functionsToReturn, statFunctions["attunements"])
+		end
 	end
 
 	for _, rarity in ipairs(RarityEnum) do
 		for _, category in ipairs(RarityLimitCategories) do
 			local categoryMaxSlots = RarityLimitCategories[category]
 			if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
+				if enabled then
 				Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
 					rarity,
 					category,
 					difficultyRules.rarityLimits[rarity][category],
 					categoryMaxSlots
 				)
+			end
 
 				actionResources = buildStatString(actionResources,
-					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, difficultyRules.rarityLimits[rarity][category]))
+					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
 
-				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = difficultyRules.rarityLimits[rarity][category]
+				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
 
-				table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+				if enabled then
+					table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+				end
 			end
 		end
 	end

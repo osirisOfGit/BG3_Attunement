@@ -24,14 +24,15 @@ end
 Ext.Events.StatsLoaded:Subscribe(function()
 	populateTemplateTable()
 
-	for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
-		Ext.Stats.Get(statName).Rarity = raritySetting.New
+	if MCM.Get("enabled") then
+		for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
+			Ext.Stats.Get(statName).Rarity = raritySetting.New
+		end
+
+		Logger:BasicInfo("Successfully applied Rarity overrides")
+		Logger:BasicDebug("Applied the following Rarity overrides: \n%s", Ext.Json.Stringify(ConfigurationStructure:GetRealConfigCopy().items.rarityOverrides))
 	end
-
-	Logger:BasicInfo("Successfully applied Rarity overrides")
-	Logger:BasicDebug("Applied the following Rarity overrides: \n%s", Ext.Json.Stringify(ConfigurationStructure:GetRealConfigCopy().items.rarityOverrides))
 end)
-
 
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
