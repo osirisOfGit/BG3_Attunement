@@ -40,22 +40,6 @@ local statFunctions = {
 
 		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
 			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
-			local existingItem = Osi.GetItemByTemplateInPartyInventory(stat.RootTemplate, Osi.GetHostCharacter())
-			if existingItem then
-				Osi.ApplyStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
-			end
-		end
-
-		if not shouldAttune then
-			local existingItem = Osi.GetItemByTemplateInPartyInventory(stat.RootTemplate, Osi.GetHostCharacter())
-			if existingItem then
-				if Osi.HasActiveStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-					Osi.RemoveStatus(existingItem, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
-				end
-				if Osi.HasActiveStatus(existingItem, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
-					Osi.RemoveStatus(existingItem, "ATTUNEMENT_IS_ATTUNED_STATUS")
-				end
-			end
 		end
 	end,
 	---@param rarity Rarity

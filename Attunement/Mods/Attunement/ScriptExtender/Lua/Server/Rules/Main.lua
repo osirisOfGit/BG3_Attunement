@@ -1,8 +1,74 @@
+---@param itemUUID GUIDSTRING
+---@return ItemStat
+local function FixAttunementStatus(itemUUID)
+	---@type ItemStat
+	local stat = Ext.Stats.Get(Osi.GetStatString(itemUUID))
+	local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
+
+	if requiresAttunement then
+		if Osi.IsEquipped(itemUUID) == 1 then
+			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 0 then
+				Osi.ApplyStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+			end
+		else
+			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 0 then
+				Osi.ApplyStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
+		end
+	else
+		if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+			Osi.RemoveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
+		end
+		if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+			Osi.RemoveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS")
+		end
+	end
+
+	return stat
+end
+
+-- Credit to SwissFred57 in Larian Discord for the initial code
+local function FixAttunementStatusOnEquipables(container, depth)
+	depth = depth or 0
+
+	if depth > 2 then
+		Logger:BasicInfo(
+			"Finished processing all items in inventory within 2 levels (limited for performance reasons) - if you have relevant items contained in even more nested containers, move them to main inventory, save, then reload")
+		return
+	end
+
+	---@type EntityHandle
+	local entity = Ext.Entity.Get(container)
+	if not entity or not entity.InventoryOwner then
+		Logger:BasicWarning("DeepIterateInventory: Entity %s does not have an inventory? Report this on Nexus please", container)
+		return
+	end
+
+	local primaryInventory = entity.InventoryOwner.PrimaryInventory
+	if not primaryInventory or not primaryInventory.InventoryContainer then
+		Logger:BasicWarning("DeepIterateInventory: Entity %s does not have an inventory? Report this on Nexus please", container)
+		return
+	end
+
+	for _, item in pairs(primaryInventory.InventoryContainer.Items) do
+		local itemUUID = item.Item.Uuid.EntityUuid
+		local isContainer = Osi.IsContainer(itemUUID)
+
+		if isContainer == 1 then
+			FixAttunementStatusOnEquipables(itemUUID, depth + 1)
+		elseif Osi.IsEquipable(itemUUID) == 1 then
+			FixAttunementStatus(itemUUID)
+		end
+	end
+end
+
 local cachedResources = {}
 local playerSubs = {}
 Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
 	local functionsToRun = BuildRelevantStatFunctions()
 	if #functionsToRun > 0 then
+		Osi.ShowNotification(Osi.GetHostCharacter(), "Beginning Attunement Initialization - game may lag for a moment if you have a lot of items")
+
 		for _, template in pairs(Ext.Template.GetAllRootTemplates()) do
 			if template.TemplateType == "item" then
 				---@type ItemStat
@@ -36,7 +102,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 					playerSubs[player] = ""
 					timerRef = nil
 
-					Logger:BasicInfo("Checking equipped items for %s", player)
+					Logger:BasicInfo("Updating equipped + equipable items for %s", player)
 					local resources = playerEntity.ActionResources.Resources
 
 					local sentNotification = false
@@ -55,11 +121,8 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 
 						local equippedItem = Osi.GetEquippedItem(player, itemSlot)
 						if equippedItem then
-							---@type ItemTemplate
-							local template = Ext.ServerTemplate.GetTemplate(string.sub(Osi.GetTemplate(equippedItem), -36))
-
 							---@type ItemStat
-							local stat = Ext.Stats.Get(template.Stats)
+							local stat = FixAttunementStatus(equippedItem)
 
 							for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 								local costName = string.match(cost, "^[^:]+")
@@ -94,6 +157,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 						end
 					end
 					playerEntity:Replicate("ActionResources")
+					FixAttunementStatusOnEquipables(player)
 				end)
 			end, playerEntity)
 
@@ -102,6 +166,10 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 					Ext.Entity.Unsubscribe(playerSubs[player])
 				end
 				playerSubs[player] = nil
+
+				if not next(playerSubs) then
+					Osi.ShowNotification(Osi.GetHostCharacter(), "Attunement Initialization Complete")
+				end
 			end)
 		end
 	end
