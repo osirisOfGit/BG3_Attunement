@@ -73,13 +73,18 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 			if template.TemplateType == "item" then
 				---@type ItemStat
 				local stat = Ext.Stats.Get(template.Stats)
+				local success, err = pcall(function()
+					if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
+						stat.UseCosts = string.match(stat.UseCosts, "^[^;]*")
 
-				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") then
-					stat.UseCosts = string.match(stat.UseCosts, "^[^;]*")
+						for _, func in pairs(functionsToRun) do func(stat) end
 
-					for _, func in pairs(functionsToRun) do func(stat) end
+						stat:Sync()
+					end
+				end)
 
-					stat:Sync()
+				if not success then
+					Logger:BasicWarning("Error processing stat %s for template %s: %s", stat.Name, template.Name, err)
 				end
 			end
 		end
@@ -90,14 +95,14 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 			---@type EntityHandle
 			local playerEntity = Ext.Entity.Get(player)
 
+			local timerRef
 			-- I hate this too, but adding/changing the boosts are synchronous events, not blocking method calls, so need to wait for them to fire
 			---@diagnostic disable-next-line: param-type-mismatch
 			playerSubs[player] = Ext.Entity.Subscribe("ActionResources", function()
-				local timerRef
 				if timerRef then
 					Ext.Timer.Cancel(timerRef)
 				end
-				timerRef = Ext.Timer.WaitFor(150, function()
+				timerRef = Ext.Timer.WaitFor(500, function()
 					Ext.Entity.Unsubscribe(playerSubs[player])
 					playerSubs[player] = ""
 					timerRef = nil
@@ -169,6 +174,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 
 				if not next(playerSubs) then
 					Osi.ShowNotification(Osi.GetHostCharacter(), "Attunement Initialization Complete")
+					Logger:BasicInfo("Initialization complete")
 				end
 			end)
 		end
