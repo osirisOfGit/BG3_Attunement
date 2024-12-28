@@ -2,7 +2,7 @@
 
 --- @class AttunementRules
 ConfigurationStructure.DynamicClassDefinitions.rules = {
-	totalAttunementLimit = 5
+	totalAttunementLimit = 13
 }
 
 ---@enum RarityLimitCategories

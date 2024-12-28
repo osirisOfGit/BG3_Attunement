@@ -91,7 +91,7 @@ function BuildRelevantStatFunctions()
 
 	local maxAmounts = {}
 	local functionsToReturn = {}
-	if difficultyRules.totalAttunementLimit < 12 then
+	if difficultyRules.totalAttunementLimit < 13 then
 		if enabled then
 			Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
 				difficultyRules.totalAttunementLimit)
