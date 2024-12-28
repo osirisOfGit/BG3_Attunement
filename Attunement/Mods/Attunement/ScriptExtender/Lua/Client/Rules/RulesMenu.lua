@@ -5,7 +5,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local attuneConfig = ConfigurationStructure.config.rules
 
-		tabHeader:AddText("All configurations are per-character's equipment - reload your save to apply changes")
+		tabHeader:AddText("All configurations are per-character's equipment - reload your save to apply changes. Add difficulty-specific configs using the + button below.")
 
 		local difficultyGroup = tabHeader:AddGroup("Difficulties")
 
@@ -27,7 +27,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			end
 
 			section:AddNewLine()
-			section:AddText("Equipped Limits By Rarity")
+			section:AddText("Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)")
 			local slotTable = section:AddTable("RarityBySlot", 5)
 			slotTable.SizingStretchProp = true
 

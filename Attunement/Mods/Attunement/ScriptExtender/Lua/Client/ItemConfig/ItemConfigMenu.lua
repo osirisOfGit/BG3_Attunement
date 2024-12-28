@@ -1,6 +1,9 @@
 ---@type table<FixedString, ItemTemplate>
-local allItemRoots = {}
-local sortedRoots = {}
+local rootsByName = {}
+local sortedTemplateNames = {}
+
+local templateNameByModId = {}
+local modIdByModName = {}
 
 local function populateTemplateTable()
 	for templateName, template in pairs(Ext.ClientTemplate.GetAllRootTemplates()) do
@@ -9,28 +12,41 @@ local function populateTemplateTable()
 			---@type ItemStat
 			local stat = Ext.Stats.Get(template.Stats)
 
-			local success, error = pcall(function ()
+			local success, error = pcall(function()
 				local name = template.DisplayName:Get() or templateName
-				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") and not allItemRoots[name] then
-					table.insert(sortedRoots, name)
-					allItemRoots[name] = template
+				if stat
+					and stat.Rarity ~= "Common"
+					and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor")
+					and (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity"))
+					and not rootsByName[name]
+				then
+					table.insert(sortedTemplateNames, name)
+					rootsByName[name] = template
+
+					if stat.ModId ~= "" then
+						if not templateNameByModId[stat.ModId] then
+							modIdByModName[Ext.Mod.GetMod(stat.ModId).Info.Name] = stat.ModId
+							templateNameByModId[stat.ModId] = {}
+						end
+						table.insert(templateNameByModId[stat.ModId], name)
+					end
 				end
 			end)
 			if not success then
-				Logger:BasicWarning("Couldn't load stat %s into the table due to %s", stat.Name, error)
+				Logger:BasicWarning("Couldn't load stat %s (from Mod '%s') into the table due to %s", stat.Name,
+					stat.ModId ~= "" and Ext.Mod.GetMod(stat.ModId).Info.Name or "Unknown",
+					error)
 			end
 		end
 	end
-	-- Fewest amount of characters to most, so more relevant results are at the top of the list
-	table.sort(sortedRoots)
+
+	table.sort(sortedTemplateNames)
 end
 
 populateTemplateTable()
 
 -- Has to happen in the client since StatsLoaded fires before the server starts up, so... might as well do here
 Ext.Events.StatsLoaded:Subscribe(function()
-	populateTemplateTable()
-
 	if MCM.Get("enabled") then
 		for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
 			Ext.Stats.Get(statName).Rarity = raritySetting.New
@@ -61,8 +77,8 @@ local function BuildStatusTooltip(tooltip, status, itemTemplate)
 
 	if status.Slot ~= "" then
 		tooltip:AddText("Slot: " .. status.Slot)
-	end	
-	
+	end
+
 	if status.PassivesOnEquip ~= "" then
 		tooltip:AddText("PassivesOnEquip: " .. status.PassivesOnEquip)
 	end
@@ -73,6 +89,16 @@ local function BuildStatusTooltip(tooltip, status, itemTemplate)
 
 	if status.Boosts ~= "" then
 		tooltip:AddText("Boosts: " .. status.Boosts).TextWrapPos = 600
+	end
+
+	if status.ModId ~= "" then
+		local mod = Ext.Mod.GetMod(status.ModId).Info
+		tooltip:AddText(string.format("From mod '%s' by '%s'", mod.Name, mod.Author))
+	end
+
+	if status.OriginalModId ~= "" and status.OriginalModId ~= status.ModId then
+		local mod = Ext.Mod.GetMod(status.OriginalModId).Info
+		tooltip:AddText(string.format("Originally from mod '%s' by '%s'", mod.Name, mod.Author))
 	end
 end
 
@@ -112,6 +138,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		searchInput.AutoSelectAll = true
 		searchInput.EscapeClearsAll = true
 
+		tabHeader:AddText("List all items by mod - will be cleared if above search is used")
+		local getAllForModCombo = tabHeader:AddCombo("")
+		getAllForModCombo.WidthFitPreview = true
+		local modOpts = {}
+		for modId, _ in pairs(templateNameByModId) do
+			table.insert(modOpts, Ext.Mod.GetMod(modId).Info.Name)
+		end
+		table.sort(modOpts)
+		getAllForModCombo.Options = modOpts
+
 		local resultsTable = tabHeader:AddTable("ResultsTable", 4)
 		resultsTable.Hideable = true
 		resultsTable.Visible = false
@@ -125,11 +161,132 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		headerRow:AddCell():AddText("Rarity")
 		headerRow:AddCell():AddText("Requires Attunement")
 
+		local function displayResultInTable(templateName)
+			local itemTemplate = rootsByName[templateName]
+
+			local newRow = resultsTable:AddRow()
+			newRow.IDContext = itemTemplate.Id
+			newRow.UserData = itemTemplate
+
+			---@type Armor|Weapon
+			local itemStat = Ext.Stats.Get(itemTemplate.Stats)
+
+			local nameCell = newRow:AddCell()
+			local icon = nameCell:AddImage(itemTemplate.Icon or "Item_Unknown", { 32, 32 })
+			icon.Border = RarityColors[itemStat.Rarity]
+
+			nameCell:AddText(templateName).SameLine = true
+
+			BuildStatusTooltip(nameCell:Tooltip(), itemStat, itemTemplate)
+
+			--#region Rarity
+			local rarityCell = newRow:AddCell()
+			local rarityCombo = rarityCell:AddCombo("")
+			local opts = {}
+			local selectIndex = 0
+			for _, rarity in ipairs(RarityEnum) do
+				if rarity == itemStat.Rarity then
+					selectIndex = #opts
+				end
+				table.insert(opts, rarity)
+			end
+			rarityCombo.Options = opts
+			rarityCombo.SelectedIndex = selectIndex
+
+			-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
+			local resetRarityButton = rarityCell:AddImageButton("resetRarity", "ico_reset_d", { 32, 32 })
+			resetRarityButton.SameLine = true
+			resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
+			resetRarityButton.OnClick = function()
+				itemStat.Rarity = itemConfig.rarityOverrides[itemStat.Name].Original
+
+				for i, rarity in ipairs(rarityCombo.Options) do
+					if rarity == itemStat.Rarity then
+						rarityCombo.SelectedIndex = i - 1
+						icon.Border = RarityColors[itemStat.Rarity]
+						break
+					end
+				end
+
+				itemConfig.rarityOverrides[itemStat.Name].delete = true
+				itemConfig.rarityOverrides[itemStat.Name] = nil
+				resetRarityButton.Visible = false
+			end
+
+			rarityCombo.OnChange = function()
+				local rarityOverride = itemConfig.rarityOverrides[itemStat.Name]
+				---@type Rarity
+				local selectedRarity = rarityCombo.Options[rarityCombo.SelectedIndex + 1]
+
+				if not rarityOverride then
+					itemConfig.rarityOverrides[itemStat.Name] = {
+						Original = itemStat.Rarity,
+						New = selectedRarity,
+					}
+				elseif rarityOverride.Original ~= selectedRarity then
+					rarityOverride.New = selectedRarity
+				else
+					itemConfig.rarityOverrides[itemStat.Name].delete = true
+					itemConfig.rarityOverrides[itemStat.Name] = nil
+				end
+
+				resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
+				itemStat.Rarity = selectedRarity
+				icon.Border = RarityColors[itemStat.Rarity]
+			end
+			--#endregion
+
+			local attunmentCell = newRow:AddCell()
+			-- Friggen lua falsy logic
+			local checkTheBox = itemConfig.requiresAttunementOverrides[itemStat.Name]
+			if checkTheBox == nil then
+				-- Friggen lua falsy logic
+				checkTheBox = RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and
+					(itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")
+			end
+			local requiresAttunement = attunmentCell:AddCheckbox("", checkTheBox)
+
+			-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
+			local resetAttunement = attunmentCell:AddImageButton("resetAttunement", "ico_reset_d", { 32, 32 })
+			resetAttunement.SameLine = true
+			resetAttunement.Visible = itemConfig.requiresAttunementOverrides[itemStat.Name] ~= nil
+			resetAttunement.OnClick = function()
+				requiresAttunement.Checked = not itemConfig.requiresAttunementOverrides[itemStat.Name]
+				itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
+				resetAttunement.Visible = false
+			end
+			requiresAttunement.OnChange = function()
+				if requiresAttunement.Checked == (RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")) then
+					itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
+					resetAttunement.Visible = false
+				else
+					itemConfig.requiresAttunementOverrides[itemStat.Name] = requiresAttunement.Checked
+					resetAttunement.Visible = true
+				end
+			end
+		end
+
+		getAllForModCombo.OnChange = function()
+			resultsTable.Visible = true
+			for _, child in pairs(resultsTable.Children) do
+				---@cast child ExtuiTableRow
+				if not child.Headers then
+					child:Destroy()
+				end
+			end
+			-- \[[[^_^]]]/
+			for _, templateName in pairs(templateNameByModId[modIdByModName[getAllForModCombo.Options[getAllForModCombo.SelectedIndex + 1]]]) do
+				displayResultInTable(templateName)
+			end
+		end
+
 		local delayTimer
 		searchInput.OnChange = function()
 			if delayTimer then
 				Ext.Timer.Cancel(delayTimer)
 			end
+
+			getAllForModCombo.SelectedIndex = -1
 
 			delayTimer = Ext.Timer.WaitFor(150, function()
 				resultsTable.Visible = true
@@ -142,109 +299,9 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 				if #searchInput.Text >= 3 then
 					local upperSearch = string.upper(searchInput.Text)
-					for _, templateName in pairs(sortedRoots) do
+					for _, templateName in pairs(sortedTemplateNames) do
 						if string.find(string.upper(templateName), upperSearch) then
-							local itemTemplate = allItemRoots[templateName]
-
-							local newRow = resultsTable:AddRow()
-							newRow.IDContext = itemTemplate.Id
-							newRow.UserData = itemTemplate
-
-							---@type Armor|Weapon
-							local itemStat = Ext.Stats.Get(itemTemplate.Stats)
-
-							local nameCell = newRow:AddCell()
-							local icon = nameCell:AddImage(itemTemplate.Icon or "Item_Unknown", { 32, 32 })
-							icon.Border = RarityColors[itemStat.Rarity]
-
-							nameCell:AddText(templateName).SameLine = true
-
-							BuildStatusTooltip(nameCell:Tooltip(), itemStat, itemTemplate)
-
-							--#region Rarity
-							local rarityCell = newRow:AddCell()
-							local rarityCombo = rarityCell:AddCombo("")
-							local opts = {}
-							local selectIndex = 0
-							for _, rarity in ipairs(RarityEnum) do
-								if rarity == itemStat.Rarity then
-									selectIndex = #opts
-								end
-								table.insert(opts, rarity)
-							end
-							rarityCombo.Options = opts
-							rarityCombo.SelectedIndex = selectIndex
-
-							-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
-							local resetRarityButton = rarityCell:AddImageButton("resetRarity", "ico_reset_d", { 32, 32 })
-							resetRarityButton.SameLine = true
-							resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
-							resetRarityButton.OnClick = function()
-								itemStat.Rarity = itemConfig.rarityOverrides[itemStat.Name].Original
-
-								for i, rarity in ipairs(rarityCombo.Options) do
-									if rarity == itemStat.Rarity then
-										rarityCombo.SelectedIndex = i - 1
-										icon.Border = RarityColors[itemStat.Rarity]
-										break
-									end
-								end
-
-								itemConfig.rarityOverrides[itemStat.Name].delete = true
-								itemConfig.rarityOverrides[itemStat.Name] = nil
-								resetRarityButton.Visible = false
-							end
-
-							rarityCombo.OnChange = function()
-								local rarityOverride = itemConfig.rarityOverrides[itemStat.Name]
-								---@type Rarity
-								local selectedRarity = rarityCombo.Options[rarityCombo.SelectedIndex + 1]
-
-								if not rarityOverride then
-									itemConfig.rarityOverrides[itemStat.Name] = {
-										Original = itemStat.Rarity,
-										New = selectedRarity,
-									}
-								elseif rarityOverride.Original ~= selectedRarity then
-									rarityOverride.New = selectedRarity
-								else
-									itemConfig.rarityOverrides[itemStat.Name].delete = true
-									itemConfig.rarityOverrides[itemStat.Name] = nil
-								end
-
-								resetRarityButton.Visible = itemConfig.rarityOverrides[itemStat.Name] ~= nil
-								itemStat.Rarity = selectedRarity
-								icon.Border = RarityColors[itemStat.Rarity]
-							end
-							--#endregion
-
-							local attunmentCell = newRow:AddCell()
-							-- Friggen lua falsy logic
-							local checkTheBox = itemConfig.requiresAttunementOverrides[itemStat.Name]
-							if checkTheBox == nil then
-								-- Friggen lua falsy logic
-								checkTheBox = RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")
-							end
-							local requiresAttunement = attunmentCell:AddCheckbox("", checkTheBox)
-
-							-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
-							local resetAttunement = attunmentCell:AddImageButton("resetAttunement", "ico_reset_d", { 32, 32 })
-							resetAttunement.SameLine = true
-							resetAttunement.Visible = itemConfig.requiresAttunementOverrides[itemStat.Name] ~= nil
-							resetAttunement.OnClick = function()
-								requiresAttunement.Checked = not itemConfig.requiresAttunementOverrides[itemStat.Name]
-								itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
-								resetAttunement.Visible = false
-							end
-							requiresAttunement.OnChange = function()
-								if requiresAttunement.Checked == (RarityEnum[itemStat.Rarity] >= RarityEnum[itemConfig.attunementRarityThreshold] and (itemStat.Boosts ~= "" or itemStat.PassivesOnEquip ~= "" or itemStat.StatusOnEquip ~= "")) then
-									itemConfig.requiresAttunementOverrides[itemStat.Name] = nil
-									resetAttunement.Visible = false
-								else
-									itemConfig.requiresAttunementOverrides[itemStat.Name] = requiresAttunement.Checked
-									resetAttunement.Visible = true
-								end
-							end
+							displayResultInTable(templateName)
 						end
 					end
 				end
