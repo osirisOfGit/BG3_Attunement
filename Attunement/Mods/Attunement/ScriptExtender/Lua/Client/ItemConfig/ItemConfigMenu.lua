@@ -14,7 +14,12 @@ local function populateTemplateTable()
 
 			local success, error = pcall(function()
 				local name = template.DisplayName:Get() or templateName
-				if stat and stat.Rarity ~= "Common" and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor") and not rootsByName[name] then
+				if stat
+					and stat.Rarity ~= "Common"
+					and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor")
+					and (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity"))
+					and not rootsByName[name]
+				then
 					table.insert(sortedTemplateNames, name)
 					rootsByName[name] = template
 
