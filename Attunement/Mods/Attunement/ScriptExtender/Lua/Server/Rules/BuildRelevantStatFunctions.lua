@@ -40,6 +40,9 @@ local statFunctions = {
 
 		if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
 			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
+			if not string.find(stat.UseConditions, "Combat") then
+				stat.UseConditions = string.format("%snot Combat(context.Source)", stat.UseConditions ~= "" and "(" .. stat.UseConditions .. ") and " or "")
+			end
 		end
 	end,
 	---@param rarity Rarity

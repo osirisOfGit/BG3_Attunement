@@ -1,5 +1,0 @@
-function AttunementCombatRestriction(entity)
-    local entity = entity or context.Source
-    result = (Player(entity) & ~Combat(entity)) | ~Player(entity)
-    return ConditionResult(result.Result, {ConditionError("AttunementCombat_False")})
-end
