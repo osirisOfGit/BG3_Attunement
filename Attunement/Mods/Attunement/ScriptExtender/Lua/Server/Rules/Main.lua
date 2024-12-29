@@ -161,6 +161,10 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 									else
 										resourceToModify.Amount = resourceToModify.Amount - 1
 										resourceToModify.MaxAmount = resourceToModify.Amount
+
+										if resourceToModify.Amount == 0 then
+											Osi.ApplyStatus(player, costName, -1, 1)
+										end
 									end
 								end
 							end
@@ -203,7 +207,6 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 			return
 		end
 
-
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
 			if costName == "Attunement" then
@@ -235,7 +238,7 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 		---@type ItemStat
 		local stat = Ext.Stats.Get(Osi.GetStatString(item))
 
-		if stat and string.find(stat.UseCosts, "Attunement") then
+		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 		end
 	end
@@ -280,6 +283,9 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 					resource = resources[cachedResourceID][1]
 					resource.Amount = resource.Amount + 1
 					resource.MaxAmount = resource.Amount
+					if Osi.HasActiveStatus(character, costName) == 1 then
+						Osi.RemoveStatus(character, costName)
+					end
 				end
 			end
 		end
