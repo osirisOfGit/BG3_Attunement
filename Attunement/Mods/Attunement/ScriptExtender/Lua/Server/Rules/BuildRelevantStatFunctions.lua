@@ -33,12 +33,12 @@ local statFunctions = {
 	---@param stat ItemStat
 	["attunements"] = function(stat, _)
 		-- Friggen lua falsy logic
-		local shouldAttune = ConfigurationStructure.config.items.requiresAttunementOverrides[stat.Name]
+		local shouldAttune = ConfigManager.ConfigCopy.items.requiresAttunementOverrides[stat.Name]
 		if shouldAttune == nil then
-			shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigurationStructure.config.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
+			shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
 		end
 
-		if shouldAttune and (not stat.UseCosts or not string.find(stat.UseCosts, "Attunement:")) then
+		if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
 			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
 		end
 	end,
@@ -70,7 +70,7 @@ local function GetDifficulty()
 	end
 	Logger:BasicInfo("Processing rules with Difficulty rules %s", ConfigManager.ConfigCopy.rules.difficulties[difficulty] and difficulty or "Base")
 
-	return ConfigManager.ConfigCopy.rules.difficulties[difficulty]or ConfigManager.ConfigCopy.rules.difficulties["Base"]
+	return ConfigManager.ConfigCopy.rules.difficulties[difficulty] or ConfigManager.ConfigCopy.rules.difficulties["Base"]
 end
 
 function BuildRelevantStatFunctions()
@@ -119,7 +119,10 @@ function BuildRelevantStatFunctions()
 
 				actionResources = buildStatString(actionResources,
 					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
-					
+
+				-- Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
+
+
 				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
 
 				if enabled then
@@ -129,14 +132,20 @@ function BuildRelevantStatFunctions()
 		end
 	end
 
-	local configState = Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker or {}
+	local configState = Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker or {
+		maxAmounts = {},
+		overrides = {}
+	}
 
-	if TableUtils:CompareLists(configState, maxAmounts) then
+	if TableUtils:CompareLists(configState.maxAmounts, maxAmounts) and TableUtils:CompareLists(configState.overrides, ConfigManager.ConfigCopy.items) then
 		Logger:BasicInfo("Configuration hasn't changed for this save - skipping rest of initialization")
 		return {}
 	else
 		Logger:BasicInfo("Configuration has been changed for this save - proceeeding with the rest of initialization")
-		Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker = maxAmounts
+		Ext.Vars.GetModVariables(ModuleUUID).Config_State_Tracker = {
+			maxAmounts = maxAmounts,
+			overrides = ConfigManager.ConfigCopy.items
+		}
 	end
 
 	for _, charEntity in pairs(Ext.Entity.GetAllEntitiesWithComponent("ActionResources")) do

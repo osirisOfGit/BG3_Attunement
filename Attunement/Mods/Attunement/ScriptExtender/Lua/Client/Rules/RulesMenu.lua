@@ -115,11 +115,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					end
 					local guiRules = attuneConfig.guiRules[rarity][category]
 
-					local resourceButton = sliderCell:AddButton("R")
-					resourceButton:SetStyle("FramePadding", 20, 0)
+					local resourceButton = sliderCell:AddButton("RES")
+					resourceButton:SetStyle("FramePadding", 15, 0)
 					setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
 
-					local statusOnLimit = sliderCell:AddButton("SOL")
+					local statusOnLimit = sliderCell:AddButton("STAT")
 					statusOnLimit:SetStyle("FramePadding", 20, 0)
 					statusOnLimit.SameLine = true
 					setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)

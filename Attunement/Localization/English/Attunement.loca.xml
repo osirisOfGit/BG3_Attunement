@@ -97,4 +97,5 @@
     <content contentuid="h04977baffe004e4ca2a7082d280e6a9ce940" version="1">Legendary Accessories Equip Limit Reached</content>
     <content contentuid="h52ec6ac3bcbd4b6184e2e48ac0fb8af930a7" version="1">You can no longer equip any accessories that have the 'Legendary' rarity</content>
     <!-- END RARITY STATUSES -->
+    <content contentuid="h329de7d3b8214c3cbaafd1d985bf1b62d2cf" version="1">Can't attune items while in combat</content>
 </contentList>
