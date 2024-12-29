@@ -1,3 +1,7 @@
+Ext.Vars.RegisterUserVariable("Attunement_Disarm_Tracker", {
+	Server = true
+})
+
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat
 local function FixAttunementStatus(itemUUID)
@@ -63,6 +67,23 @@ local function FixAttunementStatusOnEquipables(container, depth)
 end
 
 local cachedResources = {}
+
+local function getCachedResource(costName)
+	local cachedResourceID = cachedResources[costName]
+	if not cachedResourceID then
+		for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
+			---@type ResourceActionResource
+			local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
+			if resource.Name == costName then
+				cachedResources[costName] = actionResourceId
+				cachedResourceID = actionResourceId
+				break
+			end
+		end
+	end
+	return cachedResourceID
+end
+
 local playerSubs = {}
 Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
 	local functionsToRun = BuildRelevantStatFunctions()
@@ -137,21 +158,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 								local costName = string.match(cost, "^[^:]+")
 
 								if string.match(costName, "^.*Attunement$") then
-									local resourceToModify
-
-									local cachedResourceID = cachedResources[costName]
-									if not cachedResourceID then
-										for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
-											---@type ResourceActionResource
-											local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
-											if resource.Name == costName then
-												cachedResources[costName] = actionResourceId
-												cachedResourceID = actionResourceId
-												break
-											end
-										end
-									end
-									resourceToModify = resources[cachedResourceID][1]
+									local resourceToModify = resources[getCachedResource(costName)][1]
 									if resourceToModify.Amount == 0 then
 										Osi.Unequip(player, equippedItem)
 										if not sentNotification then
@@ -191,11 +198,6 @@ end)
 
 Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 	if MCM.Get("enabled") then
-		if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-			Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
-			Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
-		end
-
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
 		local resources = charEntity.ActionResources.Resources
@@ -210,25 +212,18 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
 			if costName == "Attunement" then
-				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
-			end
-			local resource
-			local cachedResourceID = cachedResources[costName]
-			if not cachedResourceID then
-				for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
-					---@type ResourceActionResource
-					local resourceEntry = Ext.StaticData.Get(actionResourceId, "ActionResource")
-					if resourceEntry.Name == costName then
-						cachedResources[costName] = actionResourceId
-						cachedResourceID = actionResourceId
-						break
-					end
+				if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+					Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+					Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+				else
+					goto continue
 				end
 			end
-			resource = resources[cachedResourceID][1]
+			local resource = resources[getCachedResource(costName)][1]
 			if resource.Amount == 0 then
 				Osi.ApplyStatus(character, costName, -1, 1)
 			end
+		    ::continue::
 		end
 	end
 end)
@@ -237,6 +232,25 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 	if MCM.Get("enabled") and Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
 		---@type ItemStat
 		local stat = Ext.Stats.Get(Osi.GetStatString(item))
+		local itemVar = Ext.Entity.Get(item).Vars
+		if itemVar.Attunement_Disarm_Tracker then
+			Logger:BasicDebug("%s was disarmed from %s and picked up by %s", item, itemVar.Attunement_Disarm_Tracker.owner, inventoryHolder)
+			if Osi.IsPartyMember(inventoryHolder, 1) == 1 then
+				Osi.Equip(itemVar.Attunement_Disarm_Tracker.owner, item)
+			else
+				---@type EntityHandle
+				local charEntity = Ext.Entity.Get(inventoryHolder)
+				local resources = charEntity.ActionResources.Resources
+				local resource = resources[getCachedResource("Attunement")][1]
+				resource.Amount = resource.Amount + 1
+				resource.MaxAmount = resource.Amount
+				charEntity:Replicate("ActionResources")
+
+				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
+			itemVar.Attunement_Disarm_Tracker = nil
+			return
+		end
 
 		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
@@ -261,26 +275,16 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
 
-			local resource
 			if string.match(costName, "^.*Attunement$") then
-				if costName == "Attunement" then
+				local itemDisarmTracker = Ext.Entity.Get(item).Vars.Attunement_Disarm_Tracker
+				-- Disarm fires before Unequipped, so need to ensure we're not undoing its work
+				if costName == "Attunement" and not itemDisarmTracker then
+					Logger:BasicDebug("%s was not disarmed - setting back to requiring attunement", item)
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
-				if not next(playerSubs) then
-					local cachedResourceID = cachedResources[costName]
-					if not cachedResourceID then
-						for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
-							---@type ResourceActionResource
-							local resource = Ext.StaticData.Get(actionResourceId, "ActionResource")
-							if resource.Name == costName then
-								cachedResources[costName] = actionResourceId
-								cachedResourceID = actionResourceId
-								break
-							end
-						end
-					end
-					resource = resources[cachedResourceID][1]
+				if not next(playerSubs) and (costName ~= "Attunement" or not itemDisarmTracker) then
+					local resource = resources[getCachedResource(costName)][1]
 					resource.Amount = resource.Amount + 1
 					resource.MaxAmount = resource.Amount
 					if Osi.HasActiveStatus(character, costName) == 1 then
@@ -290,5 +294,18 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			end
 		end
 		charEntity:Replicate("ActionResources")
+	end
+end)
+
+Ext.Osiris.RegisterListener("CharacterDisarmed", 3, "after", function(character, item, slotName)
+	if MCM.Get("enabled") then
+		if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+			Logger:BasicDebug("%s was disarmed, losing their attuned weapon %s, so preserving the link", character, item)
+			local itemEntity = Ext.Entity.Get(item)
+			itemEntity.Vars.Attunement_Disarm_Tracker = {
+				owner = character,
+				slot = slotName
+			}
+		end
 	end
 end)
