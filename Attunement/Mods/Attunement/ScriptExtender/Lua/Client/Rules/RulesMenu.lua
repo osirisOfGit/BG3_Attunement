@@ -1,11 +1,35 @@
+---@type {[string]: RarityGuiRules}
+local transformedGuiRules = {}
+
+if ConfigurationStructure.config.rules.guiRules then
+	for rarity, rarityEntry in pairs(ConfigurationStructure.config.rules.guiRules) do
+		for category, categoryEntry in pairs(rarityEntry) do
+			transformedGuiRules[rarity .. category .. "LimitAttunement"] = categoryEntry
+		end
+	end
+end
+
+local cachedResources = {}
+
 Ext.Events.StatsLoaded:Subscribe(function(e)
 	for _, actionResourceGUID in pairs(Ext.StaticData.GetAll("ActionResource")) do
 		---@type ResourceActionResource
 		local actionResourceDefiniton = Ext.StaticData.Get(actionResourceGUID, "ActionResource")
-		if string.find(actionResourceDefiniton.Name, "Attunement") then
-			actionResourceDefiniton.IsHidden = true
-			actionResourceDefiniton.ShowOnActionResourcePanel = false
+
+		if string.find(actionResourceDefiniton.Name, ".*Attunement.*") then
+			cachedResources[actionResourceDefiniton.Name] = actionResourceGUID
 		end
+
+		if transformedGuiRules[actionResourceDefiniton.Name] then
+			actionResourceDefiniton.ShowOnActionResourcePanel = transformedGuiRules[actionResourceDefiniton.Name]["resource"]
+		end
+	end
+
+	for statName, guiRule in pairs(transformedGuiRules) do
+		---@type StatusData
+		local stat = Ext.Stats.Get(statName)
+		stat.StatusPropertyFlags = guiRule["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
+		stat:Sync()
 	end
 end)
 
@@ -103,10 +127,15 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					resourceButton.OnClick = function()
 						guiRules["resource"] = not guiRules["resource"]
 						setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
+						Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
 					end
 					statusOnLimit.OnClick = function()
 						guiRules["statusOnLimit"] = not guiRules["statusOnLimit"]
 						setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
+						---@type StatusData
+						local stat = Ext.Stats.Get(rarity .. category .. "LimitAttunement")
+						stat.StatusPropertyFlags = guiRules["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
+						stat:Sync()
 					end
 				end
 			end

@@ -186,9 +186,47 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 end)
 
 Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
-	if MCM.Get("enabled") and Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-		Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
-		Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+	if MCM.Get("enabled") then
+		if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+			Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+			Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+		end
+
+		---@type EntityHandle
+		local charEntity = Ext.Entity.Get(character)
+		local resources = charEntity.ActionResources.Resources
+
+		---@type ItemStat
+		local stat = Ext.Stats.Get(Osi.GetStatString(item))
+
+		if not stat then
+			return
+		end
+
+
+		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
+			local costName = string.match(cost, "^[^:]+")
+			if costName == "Attunement" then
+				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
+			local resource
+			local cachedResourceID = cachedResources[costName]
+			if not cachedResourceID then
+				for _, actionResourceId in pairs(Ext.StaticData.GetAll("ActionResource")) do
+					---@type ResourceActionResource
+					local resourceEntry = Ext.StaticData.Get(actionResourceId, "ActionResource")
+					if resourceEntry.Name == costName then
+						cachedResources[costName] = actionResourceId
+						cachedResourceID = actionResourceId
+						break
+					end
+				end
+			end
+			resource = resources[cachedResourceID][1]
+			if resource.Amount == 0 then
+				Osi.ApplyStatus(character, costName, -1, 1)
+			end
+		end
 	end
 end)
 
@@ -217,15 +255,12 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			return
 		end
 
-		local foundAttunement = false
-
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
 
 			local resource
 			if string.match(costName, "^.*Attunement$") then
 				if costName == "Attunement" then
-					foundAttunement = true
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
@@ -249,14 +284,5 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			end
 		end
 		charEntity:Replicate("ActionResources")
-
-		if not foundAttunement then
-			if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-				Osi.RemoveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
-			end
-			if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
-				Osi.RemoveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS")
-			end
-		end
 	end
 end)

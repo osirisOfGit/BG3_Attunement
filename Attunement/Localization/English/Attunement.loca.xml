@@ -7,9 +7,6 @@
     <content contentuid="h046058e8c20743e9a151895245575dc7fa1a" version="1">This item requires attunement - if you have no attunement slots, you will not be able to equip this</content>
     <content contentuid="h8288b3f51c2c45dda3da9331fbddefd7dafd" version="1">Attuned</content>
     <content contentuid="he5b84d40ad6f4fd498974b3a152182549c3f" version="1">Currently attuned</content>
-    <content contentuid="h2e2aa5947cf84efaa2ed47d9dcad52491b04" version="1">No More Attunement Slots Are Available - Can't Attune This Item</content>
-    <content contentuid="hbaef601a7348400facb84368e773b7501dg8" version="1">Can't Attune</content>
-    <content contentuid="h560b42050b044c01bef302651290b0a18a6f" version="1">You're out of attunement slots</content>
     <content contentuid="hb7cb9d0ef1874b62b903684785a32cdfg07a" version="1">Attune Equipment</content>
     <content contentuid="h69b4613e8e7b4b42860ed2684d94b6415e12" version="1">Attunes an item to you, allowing you to equip it</content>
 

@@ -68,9 +68,9 @@ local function GetDifficulty()
 	if difficulty == "HARD" and Osi.GetRulesetModifierBool("338450d9-d77d-4950-9e1e-0e7f12210bb3") == 1 then
 		difficulty = "HONOUR"
 	end
-	Logger:BasicInfo("Processing rules with Difficulty rules %s", ConfigManager.ConfigCopy.rules[difficulty] and difficulty or "Base")
+	Logger:BasicInfo("Processing rules with Difficulty rules %s", ConfigManager.ConfigCopy.rules.difficulties[difficulty] and difficulty or "Base")
 
-	return ConfigManager.ConfigCopy.rules[difficulty] or ConfigManager.ConfigCopy.rules["Base"]
+	return ConfigManager.ConfigCopy.rules.difficulties[difficulty]or ConfigManager.ConfigCopy.rules.difficulties["Base"]
 end
 
 function BuildRelevantStatFunctions()
@@ -119,7 +119,7 @@ function BuildRelevantStatFunctions()
 
 				actionResources = buildStatString(actionResources,
 					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
-
+					
 				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
 
 				if enabled then
