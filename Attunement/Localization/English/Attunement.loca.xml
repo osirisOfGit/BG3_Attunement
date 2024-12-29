@@ -9,6 +9,9 @@
     <content contentuid="he5b84d40ad6f4fd498974b3a152182549c3f" version="1">Currently attuned</content>
     <content contentuid="hb7cb9d0ef1874b62b903684785a32cdfg07a" version="1">Attune Equipment</content>
     <content contentuid="h69b4613e8e7b4b42860ed2684d94b6415e12" version="1">Attunes an item to you, allowing you to equip it</content>
+    <content contentuid="h329de7d3b8214c3cbaafd1d985bf1b62d2cf" version="1">Can't attune items while in combat</content>
+    <content contentuid="hcbc0fc605ba646fdb98c0fea33154a4abb63" version="1">Attunement Limit Reached</content>
+    <content contentuid="hb77562e6fd244ceea8ab82d791f0cc1a009d" version="1">Can't equip any more items that require attunement</content>
 
     <!-- RARITY LIMIT RESOURCES -->
     <content contentuid="hcb119a4628d4471e91fc6ea47cb34e25af24" version="1">How many Uncommon items can be equipped in total</content>
@@ -97,5 +100,4 @@
     <content contentuid="h04977baffe004e4ca2a7082d280e6a9ce940" version="1">Legendary Accessories Equip Limit Reached</content>
     <content contentuid="h52ec6ac3bcbd4b6184e2e48ac0fb8af930a7" version="1">You can no longer equip any accessories that have the 'Legendary' rarity</content>
     <!-- END RARITY STATUSES -->
-    <content contentuid="h329de7d3b8214c3cbaafd1d985bf1b62d2cf" version="1">Can't attune items while in combat</content>
 </contentList>

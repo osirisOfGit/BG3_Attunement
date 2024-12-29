@@ -51,5 +51,8 @@ ConfigurationStructure.config.rules = {
 	---@type { [Difficulties|'Base'] : AttunementRules }
 	difficulties = {},
 	---@type {[Rarity] : {[RarityLimitCategories] : RarityGuiRules}}
-	guiRules = {}
+	rarityGuiRules = {},
+	attunementGuiRules = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
 }
+
+ConfigurationStructure.config.rules.attunementGuiRules["resource"] = true

@@ -1,10 +1,18 @@
+new entry "Attunement"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "hcbc0fc605ba646fdb98c0fea33154a4abb63;1"
+data "Description" "hb77562e6fd244ceea8ab82d791f0cc1a009d;1"
+data "Icon" "Attunement"
+data "StackId" "Attunement"
+
 new entry "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS"
 type "StatusData"
 data "StatusType" "BOOST"
 data "DisplayName" "h0dab9a9524554677bd7be74976561c919df5;1"
 data "Description" "h046058e8c20743e9a151895245575dc7fa1a;1"
-data "Icon" "Spell_Evocation_Light
-data "StackId" "Attunement"
+data "Icon" "Attunement
+data "StackId" "AttunementFlag"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog"
 
 new entry "ATTUNEMENT_IS_ATTUNED_STATUS"
@@ -12,8 +20,8 @@ type "StatusData"
 data "StatusType" "BOOST"
 data "DisplayName" "h8288b3f51c2c45dda3da9331fbddefd7dafd;1"
 data "Description" "he5b84d40ad6f4fd498974b3a152182549c3f;1"
-data "Icon" "Spell_Evocation_Light"
-data "StackId" "Attunement"
+data "Icon" "Attunement"
+data "StackId" "AttunementFlag"
 
 new entry "ATTUNE_EQUIPMENT"
 type "SpellData"

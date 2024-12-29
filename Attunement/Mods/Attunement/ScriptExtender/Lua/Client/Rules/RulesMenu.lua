@@ -1,10 +1,10 @@
 ---@type {[string]: RarityGuiRules}
-local transformedGuiRules = {}
+local transformedRarityGuiRules = {}
 
-if ConfigurationStructure.config.rules.guiRules then
-	for rarity, rarityEntry in pairs(ConfigurationStructure.config.rules.guiRules) do
+if ConfigurationStructure.config.rules.rarityGuiRules then
+	for rarity, rarityEntry in pairs(ConfigurationStructure.config.rules.rarityGuiRules) do
 		for category, categoryEntry in pairs(rarityEntry) do
-			transformedGuiRules[rarity .. category .. "LimitAttunement"] = categoryEntry
+			transformedRarityGuiRules[rarity .. category .. "LimitAttunement"] = categoryEntry
 		end
 	end
 end
@@ -18,14 +18,17 @@ Ext.Events.StatsLoaded:Subscribe(function(e)
 
 		if string.find(actionResourceDefiniton.Name, ".*Attunement.*") then
 			cachedResources[actionResourceDefiniton.Name] = actionResourceGUID
+
+			if transformedRarityGuiRules[actionResourceDefiniton.Name] then
+				actionResourceDefiniton.ShowOnActionResourcePanel = transformedRarityGuiRules[actionResourceDefiniton.Name]["resource"]
+			else
+				actionResourceDefiniton.ShowOnActionResourcePanel = ConfigurationStructure.config.rules.attunementGuiRules["resource"]
+			end
 		end
 
-		if transformedGuiRules[actionResourceDefiniton.Name] then
-			actionResourceDefiniton.ShowOnActionResourcePanel = transformedGuiRules[actionResourceDefiniton.Name]["resource"]
-		end
 	end
 
-	for statName, guiRule in pairs(transformedGuiRules) do
+	for statName, guiRule in pairs(transformedRarityGuiRules) do
 		---@type StatusData
 		local stat = Ext.Stats.Get(statName)
 		stat.StatusPropertyFlags = guiRule["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
@@ -34,9 +37,9 @@ Ext.Events.StatsLoaded:Subscribe(function(e)
 end)
 
 ---@param button ExtuiButton
-local function setEnabledButtonColor(button, enabled, rarityColor)
+local function setEnabledButtonColor(button, enabled, enabledColor)
 	if enabled then
-		button:SetColor("Button", rarityColor)
+		button:SetColor("Button", enabledColor)
 	else
 		button:SetColor("Button", { 0.458, 0.4, 0.29, 0.5 })
 	end
@@ -65,6 +68,29 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			local section = difficultyGroup:AddCollapsingHeader(diffId)
 			section:AddText("Total Number Of Attuned Items Allowed")
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
+			local attunementGuiRules = ConfigurationStructure.config.rules.attunementGuiRules
+			local attunementResourceButton = section:AddButton("RES")
+			attunementResourceButton:SetStyle("FramePadding", 15, 0)
+			setEnabledButtonColor(attunementResourceButton, attunementGuiRules["resource"], { 0.458, 0.4, 0.29, 1.0 })
+
+			local attunementStatusButton = section:AddButton("STAT")
+			attunementStatusButton:SetStyle("FramePadding", 20, 0)
+			attunementStatusButton.SameLine = true
+			setEnabledButtonColor(attunementStatusButton, attunementGuiRules["statusOnLimit"], { 0.458, 0.4, 0.29, 1.0 })
+
+			attunementResourceButton.OnClick = function()
+				attunementGuiRules["resource"] = not attunementGuiRules["resource"]
+				setEnabledButtonColor(attunementResourceButton, attunementGuiRules["resource"], { 0.458, 0.4, 0.29, 1.0 })
+				Ext.StaticData.Get(cachedResources["Attunement"], "ActionResource").ShowOnActionResourcePanel = attunementGuiRules["resource"]
+			end
+			attunementStatusButton.OnClick = function()
+				attunementGuiRules["statusOnLimit"] = not attunementGuiRules["statusOnLimit"]
+				setEnabledButtonColor(attunementStatusButton, attunementGuiRules["statusOnLimit"], { 0.458, 0.4, 0.29, 1.0 })
+				---@type StatusData
+				local stat = Ext.Stats.Get("Attunement")
+				stat.StatusPropertyFlags = attunementGuiRules["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
+				stat:Sync()
+			end
 
 			totalAttuneLimitSlider.OnChange = function()
 				difficultyConfig.totalAttunementLimit = totalAttuneLimitSlider.Value[1]
@@ -91,8 +117,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					difficultyConfig.rarityLimits[rarity] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot)
 					rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
 				end
-				if not attuneConfig.guiRules[rarity] then
-					attuneConfig.guiRules[rarity] = {}
+				if not attuneConfig.rarityGuiRules[rarity] then
+					attuneConfig.rarityGuiRules[rarity] = {}
 				end
 
 				local slotRow = slotTable:AddRow()
@@ -110,17 +136,17 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 						rarityLimitConfig[category] = slider.Value[1]
 					end
 
-					if not attuneConfig.guiRules[rarity][category] then
-						attuneConfig.guiRules[rarity][category] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
+					if not attuneConfig.rarityGuiRules[rarity][category] then
+						attuneConfig.rarityGuiRules[rarity][category] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
 					end
-					local guiRules = attuneConfig.guiRules[rarity][category]
+					local guiRules = attuneConfig.rarityGuiRules[rarity][category]
 
 					local resourceButton = sliderCell:AddButton("RES")
-					resourceButton:SetStyle("FramePadding", 15, 0)
+					resourceButton:SetStyle("FramePadding", 10, 0)
 					setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
 
 					local statusOnLimit = sliderCell:AddButton("STAT")
-					statusOnLimit:SetStyle("FramePadding", 20, 0)
+					statusOnLimit:SetStyle("FramePadding", 7, 0)
 					statusOnLimit.SameLine = true
 					setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
 
