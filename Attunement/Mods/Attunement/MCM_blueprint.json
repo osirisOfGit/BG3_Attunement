@@ -6,24 +6,24 @@
 			"TabDescription": "General settings",
 			"TabId": "general",
 			"Handles": {
-				"NameHandle": "h48114efb7ced449bbb25a5f3f336b50af25f",
-				"DescriptionHandle": "h5d55ed7112d647a29ec04f0a6abb6e32bc0b"
+				"NameHandle": "h00aacc9655e949239e57f8ce94ca32c339d8",
+				"DescriptionHandle": "h8ff17773028742ef8f317e869b25b448be46"
 			},
 			"Sections": [
 				{
 					"SectionName": "General Mod Behavior",
 					"SectionId": "general-mod-behavior",
 					"Handles": {
-						"NameHandle": "h80a1c01dc37c47609ae90e962edb40261db9"
+						"NameHandle": "h160b31157d2549caad29691b44e745c2b7d3"
 					},
 					"Settings": [
 						{
 							"Id": "enabled",
 							"Name": "Enable Mod",
-							"Description": "Enables or disables the mod. Restart your game when changing to fully apply changes.",
+							"Description": "Enables or disables the mod. Restart your game when disabling to fully clear stat changes.",
 							"Handles": {
-								"NameHandle": "h5483f83a22da46f5a975281e1827b988acae",
-								"DescriptionHandle": "h5b58ff1d4f354c3d88d6db2a213a6fc0a95d"
+								"NameHandle": "h8f6e37ff1b634b3d9dd0978f96207cc578g4",
+								"DescriptionHandle": "habf22a0adc65460da381ac71e4033d11c85e"
 							},
 							"Type": "checkbox",
 							"Default": true
@@ -33,8 +33,8 @@
 							"Name": "Log level",
 							"Description": "0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)",
 							"Handles": {
-								"NameHandle": "h91ffd7b8ad96495b8073dcf355cbd4372617",
-								"DescriptionHandle": "hfc82d5049a6f4084a89c8440b153edbafeab"
+								"NameHandle": "h4adbc671c54d486ca3989249c74cf6ee1e4c",
+								"DescriptionHandle": "h838d4b555a7c471f86daa380f5e8f37a0796"
 							},
 							"Type": "slider_int",
 							"Default": 3,

@@ -146,6 +146,13 @@ function BuildRelevantStatFunctions()
 		overrides = {}
 	}
 
+	if not configState.maxAmounts then
+		configState.maxAmounts = {}
+	end
+	if not configState.overrides then
+		configState.overrides = {}
+	end
+
 	if TableUtils:CompareLists(configState.maxAmounts, maxAmounts) and TableUtils:CompareLists(configState.overrides, ConfigManager.ConfigCopy.items) then
 		Logger:BasicInfo("Configuration hasn't changed for this save - skipping rest of initialization")
 		return {}

@@ -100,4 +100,11 @@
     <content contentuid="h04977baffe004e4ca2a7082d280e6a9ce940" version="1">Legendary Accessories Equip Limit Reached</content>
     <content contentuid="h52ec6ac3bcbd4b6184e2e48ac0fb8af930a7" version="1">You can no longer equip any accessories that have the 'Legendary' rarity</content>
     <!-- END RARITY STATUSES -->
+    <content contentuid="habf22a0adc65460da381ac71e4033d11c85e" version="1">Enables or disables the mod. Restart your game when disabling to fully clear stat changes.</content>
+    <content contentuid="h00aacc9655e949239e57f8ce94ca32c339d8" version="1">General</content>
+    <content contentuid="h8ff17773028742ef8f317e869b25b448be46" version="1">General Settings</content>
+    <content contentuid="h160b31157d2549caad29691b44e745c2b7d3" version="1">General Mod Behavior</content>
+    <content contentuid="h8f6e37ff1b634b3d9dd0978f96207cc578g4" version="1">Enable Mod</content>
+    <content contentuid="h4adbc671c54d486ca3989249c74cf6ee1e4c" version="1">Log level</content>
+    <content contentuid="h838d4b555a7c471f86daa380f5e8f37a0796" version="1">0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)</content>
 </contentList>

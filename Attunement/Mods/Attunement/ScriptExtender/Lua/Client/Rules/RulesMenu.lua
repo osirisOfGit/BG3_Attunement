@@ -1,6 +1,7 @@
 ---@type {[string]: RarityGuiRules}
 local transformedRarityGuiRules = {}
 
+
 if ConfigurationStructure.config.rules.rarityGuiRules then
 	for rarity, rarityEntry in pairs(ConfigurationStructure.config.rules.rarityGuiRules) do
 		for category, categoryEntry in pairs(rarityEntry) do
@@ -10,6 +11,14 @@ if ConfigurationStructure.config.rules.rarityGuiRules then
 end
 
 local cachedResources = {}
+for _, actionResourceGUID in pairs(Ext.StaticData.GetAll("ActionResource")) do
+	---@type ResourceActionResource
+	local actionResourceDefiniton = Ext.StaticData.Get(actionResourceGUID, "ActionResource")
+
+	if string.find(actionResourceDefiniton.Name, ".*Attunement.*") then
+		cachedResources[actionResourceDefiniton.Name] = actionResourceGUID
+	end
+end
 
 Ext.Events.StatsLoaded:Subscribe(function(e)
 	for _, actionResourceGUID in pairs(Ext.StaticData.GetAll("ActionResource")) do
@@ -17,15 +26,12 @@ Ext.Events.StatsLoaded:Subscribe(function(e)
 		local actionResourceDefiniton = Ext.StaticData.Get(actionResourceGUID, "ActionResource")
 
 		if string.find(actionResourceDefiniton.Name, ".*Attunement.*") then
-			cachedResources[actionResourceDefiniton.Name] = actionResourceGUID
-
 			if transformedRarityGuiRules[actionResourceDefiniton.Name] then
 				actionResourceDefiniton.ShowOnActionResourcePanel = transformedRarityGuiRules[actionResourceDefiniton.Name]["resource"]
 			else
 				actionResourceDefiniton.ShowOnActionResourcePanel = ConfigurationStructure.config.rules.attunementGuiRules["resource"]
 			end
 		end
-
 	end
 
 	for statName, guiRule in pairs(transformedRarityGuiRules) do
@@ -52,7 +58,12 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local attuneConfig = ConfigurationStructure.config.rules
 
-		tabHeader:AddText("All configurations are per-character's equipment - reload your save to apply changes. Add difficulty-specific configs using the + button below.")
+		local moreInfo = tabHeader:AddImageButton("More Info", "Action_Help", { 30, 30 })
+		local moreInfoTooltip = moreInfo:Tooltip()
+		moreInfoTooltip:AddText("\t\tAll configurations are per-character's equipment - reload to apply changes. Add difficulty-specific configs using the + button below.")
+		moreInfoTooltip:AddText("Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')")
+		moreInfoTooltip:AddText("The resource only shows when you're _below_ the equip limit for the given resource, and the status only shows when you've reached the given equip limit")
+		moreInfoTooltip:AddText("The button settings are copied between difficulties - only the sliders are per-difficulty")
 
 		local difficultyGroup = tabHeader:AddGroup("Difficulties")
 
