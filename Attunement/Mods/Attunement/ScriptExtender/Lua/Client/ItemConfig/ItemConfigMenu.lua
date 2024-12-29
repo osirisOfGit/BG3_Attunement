@@ -58,12 +58,12 @@ Ext.Events.StatsLoaded:Subscribe(function()
 end)
 
 ---@param tooltip ExtuiTooltip
----@param status ItemStat
+---@param itemStat ItemStat
 ---@param itemTemplate ItemTemplate
-local function BuildStatusTooltip(tooltip, status, itemTemplate)
+local function BuildStatusTooltip(tooltip, itemStat, itemTemplate)
 	tooltip:AddText("\n")
 	tooltip:AddText("Item Display Name: " .. (itemTemplate.DisplayName:Get() or "N/A"))
-	tooltip:AddText("Stat Name: " .. status.Name)
+	tooltip:AddText("Stat Name: " .. itemStat.Name)
 
 	-- local description = itemTemplate.Description:Get() or "N/A"
 	-- -- Getting rid of all content contained in <>, like <LsTags../> and <br/>
@@ -71,33 +71,33 @@ local function BuildStatusTooltip(tooltip, status, itemTemplate)
 	-- local desc = tooltip:AddText("Description: " .. description)
 	-- desc.TextWrapPos = 600
 
-	if status.Using ~= "" then
-		tooltip:AddText("Using: " .. status.Using)
+	if itemStat.Using ~= "" then
+		tooltip:AddText("Using: " .. itemStat.Using)
 	end
 
-	if status.Slot ~= "" then
-		tooltip:AddText("Slot: " .. status.Slot)
+	if itemStat.Slot ~= "" then
+		tooltip:AddText("Slot: " .. itemStat.Slot)
 	end
 
-	if status.PassivesOnEquip ~= "" then
-		tooltip:AddText("PassivesOnEquip: " .. status.PassivesOnEquip)
+	if itemStat.PassivesOnEquip ~= "" then
+		tooltip:AddText("PassivesOnEquip: " .. itemStat.PassivesOnEquip)
 	end
 
-	if status.StatusOnEquip ~= "" then
-		tooltip:AddText("StatusOnEquip: " .. status.StatusOnEquip)
+	if itemStat.StatusOnEquip ~= "" then
+		tooltip:AddText("StatusOnEquip: " .. itemStat.StatusOnEquip)
 	end
 
-	if status.Boosts ~= "" then
-		tooltip:AddText("Boosts: " .. status.Boosts).TextWrapPos = 600
+	if itemStat.Boosts ~= "" then
+		tooltip:AddText("Boosts: " .. itemStat.Boosts).TextWrapPos = 900
 	end
 
-	if status.ModId ~= "" then
-		local mod = Ext.Mod.GetMod(status.ModId).Info
+	if itemStat.ModId ~= "" then
+		local mod = Ext.Mod.GetMod(itemStat.ModId).Info
 		tooltip:AddText(string.format("From mod '%s' by '%s'", mod.Name, mod.Author))
 	end
 
-	if status.OriginalModId ~= "" and status.OriginalModId ~= status.ModId then
-		local mod = Ext.Mod.GetMod(status.OriginalModId).Info
+	if itemStat.OriginalModId ~= "" and itemStat.OriginalModId ~= itemStat.ModId then
+		local mod = Ext.Mod.GetMod(itemStat.OriginalModId).Info
 		tooltip:AddText(string.format("Originally from mod '%s' by '%s'", mod.Name, mod.Author))
 	end
 end

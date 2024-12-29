@@ -8,6 +8,7 @@
 			"type": "shell",
 			// mklink /J "D:\GOG\Baldurs Gate 3\Data\Mods\Attunement" "D:\Mods\BG3 Modder MultiTool\Attunement\Attunement\Mods\Attunement"
 			// mklink /J "D:\GOG\Baldurs Gate 3\Data\Public\Attunement" "D:\Mods\BG3 Modder MultiTool\Attunement\Attunement\Public\Attunement"
+			// mklink /J "D:\GOG\Baldurs Gate 3\Data\Scripts\thoth\helpers" "D:\Mods\BG3 Modder MultiTool\Attunement\Attunement\Scripts\thoth\helpers"
 			"windows": {
 				"command": "Start-Process",
 				"args": [
