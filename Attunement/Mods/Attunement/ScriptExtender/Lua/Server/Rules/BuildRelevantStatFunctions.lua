@@ -40,9 +40,15 @@ local statFunctions = {
 
 		if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
 			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
-			if not string.find(stat.UseConditions, "Combat") then
-				stat.UseConditions = string.format("%snot Combat(context.Source)", stat.UseConditions ~= "" and "(" .. stat.UseConditions .. ") and " or "")
+			-- Khonsu scripts weren't working no matter what i tried, so this is the next best thing
+			for _, requirement in pairs(stat.Requirements) do
+				if requirement.Requirement == Ext.Enums.RequirementType.Combat then
+					return
+				end
 			end
+			local reqs = stat.Requirements
+			table.insert(reqs, { Requirement = Ext.Enums.RequirementType.Combat, Param = -1, Not = true })
+			stat.Requirements = reqs
 		end
 	end,
 	---@param rarity Rarity
