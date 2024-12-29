@@ -12,6 +12,7 @@
     <content contentuid="h560b42050b044c01bef302651290b0a18a6f" version="1">You're out of attunement slots</content>
     <content contentuid="hb7cb9d0ef1874b62b903684785a32cdfg07a" version="1">Attune Equipment</content>
     <content contentuid="h69b4613e8e7b4b42860ed2684d94b6415e12" version="1">Attunes an item to you, allowing you to equip it</content>
+
     <!-- RARITY LIMIT RESOURCES -->
     <content contentuid="hcb119a4628d4471e91fc6ea47cb34e25af24" version="1">How many Uncommon items can be equipped in total</content>
     <content contentuid="h6ca69b09635e48478f841e022843dc77224e" version="1">Uncommon Item Equip Limit</content>
@@ -49,6 +50,54 @@
     <content contentuid="h04bd971c943b4690b014b317470ff4f03a5b" version="1">How many Legendary Accessories can be equipped</content>
     <content contentuid="hab41f6ffaa964d18822d3f0ad0054d16e390" version="1">Legendary Accessories Limit</content>
     <!-- END RARITY LIMIT RESOURCES -->
-    <content contentuid="h109f4970dfb046f7a08721fbb20d0ec6aaad" version="1">%%% Empty</content>
-    <content contentuid="hec44e30c719542efa0d0ed88e0264dc7534e" version="1">%%% Empty</content>
+
+    <!-- BEGIN RARITY STATUSES -->
+    <content contentuid="hfad65113c079407d9d11738f3f79728c0e82" version="1">Very Rare Total Equip Limit Reached</content>
+    <content contentuid="h6784759a441142b98702de7f09a5ef50aed9" version="1">You can no longer equip any items that have the 'Very Rare' rarity</content>
+
+    <content contentuid="h5df3300129d946cc89d5884c7124390e990e" version="1">Very Rare Weapon Equip Limit Reached</content>
+    <content contentuid="hdb9e6a1487ae4279a74963f542ac677c2592" version="1">You can no longer equip any weapons that have the 'Very Rare' rarity</content>
+
+    <content contentuid="hd3a92f6f134d49e1a97753e8ae912c0bdf33" version="1">Very Rare Armor Equip Limit Reached</content>
+    <content contentuid="hbaf75543dbc943dabedd643c4b22899871dg" version="1">You can no longer equip any armor pieces that have the 'Very Rare' rarity</content>
+
+    <content contentuid="h55d40547e4824aee89f402d0bee6553b5f68" version="1">Very Rare Accessories Equip Limit Reached</content>
+    <content contentuid="h017b7cd5392340ec8d4368d593d4a1f715ff" version="1">You can no longer equip any accessories that have the 'Very Rare' rarity</content>
+
+    <content contentuid="hd8ee31d893df4db79910c3a7ea8cf369b336" version="1">Uncommon Item Equip Limit Reached</content>
+    <content contentuid="hcaa5964ad4034d209a8c2b4bee755b23835f" version="1">You can no longer equip any items that have the 'Uncommon' rarity</content>
+
+    <content contentuid="h16973c799a604866b4ead8560cb5bdc13d72" version="1">Uncommon Weapon Equip Limit Reached</content>
+    <content contentuid="hc0000a8edca44cfb93e373b4856d11d258ag" version="1">You can no longer equip any weapons that have the 'Uncommon' rarity</content>
+
+    <content contentuid="hf4707f54664044198e6e90bab4baae35409b" version="1">Uncommon Armor Equip Limit Reached</content>
+    <content contentuid="h353b0fd6538e40738cbf516b8a9d3f44038c" version="1">You can no longer equip any armor pieces that have the 'Uncommon' rarity</content>
+
+    <content contentuid="h2047dd40827e45e5bc037d98682ebd1746ee" version="1">Uncommon Accessories Equip Limit Reached</content>
+    <content contentuid="h432a87e4d36741b098a63ee3efaa8195fb95" version="1">You can no longer equip any accessories that have the 'Uncommon' rarity</content>
+
+    <content contentuid="h33a3b49aa9cc488e9690910fb828a0fd29bb" version="1">Rare Item Equip Limit Reached</content>
+    <content contentuid="h3eb77869227a47e5aa024d54b08780fec5cg" version="1">You can no longer equip any items that have the 'Rare' rarity</content>
+
+    <content contentuid="hda4a5a43d5474a7d9aa4592bb5019b947f07" version="1">Rare Weapon Equip Limit Reached</content>
+    <content contentuid="he333e146508b475c88564f2c2328b29ee7dg" version="1">You can no longer equip any weapons that have the 'Rare' rarity</content>
+
+    <content contentuid="h2db0b8a37c5f4572beead92f8b070e5e34eb" version="1">Rare Armor Equip Limit Reached</content>
+    <content contentuid="he05d3d2fe9b74d8e87ded71b3181bc80afcc" version="1">You can no longer equip any armor pieces that have the 'Rare' rarity</content>
+
+    <content contentuid="hf72a913baadd4c94aac5d7200db47e4992eg" version="1">Rare Accessories Equip Limit Reached</content>
+    <content contentuid="ha9d604d347fa4163ba01faec63927ce9b0af" version="1">You can no longer equip any accessories that have the 'Rare' rarity</content>
+
+    <content contentuid="h0feba430c1bf424f860e066336fb7fe60ada" version="1">Legendary Item Equip Limit Reached</content>
+    <content contentuid="hffb32b98e51f4640ae530a4f4f6e4e072515" version="1">You can no longer equip any items that have the 'Legendary' rarity</content>
+
+    <content contentuid="hb760a5d5a371482383e39a9d9524cb75446a" version="1">Legendary Weapon Equip Limit Reached</content>
+    <content contentuid="hc4ae8b5465d6437ebec5f6dd11c7d818e892" version="1">You can no longer equip any weapons that have the 'Legendary' rarity</content>
+
+    <content contentuid="h2e222cdf823348668f22895fc272165d04c8" version="1">Legendary Armor Equip Limit Reached</content>
+    <content contentuid="hd039f56b29e5422c9eb2c154d7b53efcd06b" version="1">You can no longer equip any armor pieces that have the 'Legendary' rarity</content>
+
+    <content contentuid="h04977baffe004e4ca2a7082d280e6a9ce940" version="1">Legendary Accessories Equip Limit Reached</content>
+    <content contentuid="h52ec6ac3bcbd4b6184e2e48ac0fb8af930a7" version="1">You can no longer equip any accessories that have the 'Legendary' rarity</content>
+    <!-- END RARITY STATUSES -->
 </contentList>

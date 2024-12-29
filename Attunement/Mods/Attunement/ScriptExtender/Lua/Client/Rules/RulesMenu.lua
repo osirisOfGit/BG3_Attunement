@@ -92,16 +92,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					local guiRules = attuneConfig.guiRules[rarity][category]
 
 					local resourceButton = sliderCell:AddButton("R")
-					resourceButton:SetStyle("FramePadding", 10, 0)
+					resourceButton:SetStyle("FramePadding", 20, 0)
 					setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
 
-					local statusButton = sliderCell:AddButton("S")
-					statusButton:SetStyle("FramePadding", 10, 0)
-					statusButton.SameLine = true
-					setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
-
 					local statusOnLimit = sliderCell:AddButton("SOL")
-					statusOnLimit:SetStyle("FramePadding", 10, 0)
+					statusOnLimit:SetStyle("FramePadding", 20, 0)
 					statusOnLimit.SameLine = true
 					setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
 
@@ -109,21 +104,9 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 						guiRules["resource"] = not guiRules["resource"]
 						setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
 					end
-					statusButton.OnClick = function()
-						guiRules["status"] = not guiRules["status"]
-						setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
-						if guiRules["status"] and guiRules["statusOnLimit"] then
-							guiRules["statusOnLimit"] = false
-							setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
-						end
-					end
 					statusOnLimit.OnClick = function()
 						guiRules["statusOnLimit"] = not guiRules["statusOnLimit"]
 						setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
-						if guiRules["status"] and guiRules["statusOnLimit"] then
-							guiRules["status"] = false
-							setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
-						end
 					end
 				end
 			end

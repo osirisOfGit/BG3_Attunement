@@ -32,7 +32,6 @@ ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimits = {}
 --- @class RarityGuiRules
 ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay = {
 	["resource"] = true,
-	["status"] = false,
 	["statusOnLimit"] = false,
 }
 
