@@ -28,6 +28,14 @@ ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot = {
 --- @type {[Rarity] : {[RarityLimitCategories] : number }}
 ConfigurationStructure.DynamicClassDefinitions.rules.rarityLimits = {}
 
+--- @alias AttuneGuiElement "resource"|"status"|"statusOnLimit"
+--- @class RarityGuiRules
+ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay = {
+	["resource"] = true,
+	["status"] = false,
+	["statusOnLimit"] = false,
+}
+
 ---@enum Difficulties
 Difficulties = {
 	[1] = "EASY",
@@ -39,5 +47,10 @@ Difficulties = {
 	HARD = 3,
 	HONOUR = 4
 }
----@type { [Difficulties|'Base'] : AttunementRules }
-ConfigurationStructure.config.rules = {}
+
+ConfigurationStructure.config.rules = {
+	---@type { [Difficulties|'Base'] : AttunementRules }
+	difficulties = {},
+	---@type {[Rarity] : {[RarityLimitCategories] : RarityGuiRules}}
+	guiRules = {}
+}

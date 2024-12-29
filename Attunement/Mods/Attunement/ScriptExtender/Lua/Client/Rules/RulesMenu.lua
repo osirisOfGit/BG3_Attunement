@@ -1,3 +1,23 @@
+Ext.Events.StatsLoaded:Subscribe(function(e)
+	for _, actionResourceGUID in pairs(Ext.StaticData.GetAll("ActionResource")) do
+		---@type ResourceActionResource
+		local actionResourceDefiniton = Ext.StaticData.Get(actionResourceGUID, "ActionResource")
+		if string.find(actionResourceDefiniton.Name, "Attunement") then
+			actionResourceDefiniton.IsHidden = true
+			actionResourceDefiniton.ShowOnActionResourcePanel = false
+		end
+	end
+end)
+
+---@param button ExtuiButton
+local function setEnabledButtonColor(button, enabled, rarityColor)
+	if enabled then
+		button:SetColor("Button", rarityColor)
+	else
+		button:SetColor("Button", { 0.458, 0.4, 0.29, 0.5 })
+	end
+end
+
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 	--- @param tabHeader ExtuiTreeParent
 	function(tabHeader)
@@ -12,16 +32,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 		---@param diffId Difficulties|'Base'
 		---@return ExtuiCollapsingHeader
 		local function buildDifficultySections(diffId)
-			local difficultyConfig = attuneConfig[diffId]
+			local difficultyConfig = attuneConfig.difficulties[diffId]
 			if not difficultyConfig then
-				attuneConfig[diffId] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules)
-				difficultyConfig = attuneConfig[diffId]
+				attuneConfig.difficulties[diffId] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules)
+				difficultyConfig = attuneConfig.difficulties[diffId]
 			end
 
 			local section = difficultyGroup:AddCollapsingHeader(diffId)
 			section:AddText("Total Number Of Attuned Items Allowed")
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
-			-- totalAttuneLimitSlider.SameLine = true
+
 			totalAttuneLimitSlider.OnChange = function()
 				difficultyConfig.totalAttunementLimit = totalAttuneLimitSlider.Value[1]
 			end
@@ -29,7 +49,9 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			section:AddNewLine()
 			section:AddText("Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)")
 			local slotTable = section:AddTable("RarityBySlot", 5)
-			slotTable.SizingStretchProp = true
+			slotTable.SizingStretchSame = true
+			slotTable.BordersInnerH = true
+			slotTable:SetStyle("ChildBorderSize", 20)
 
 			local headerRow = slotTable:AddRow()
 			headerRow.Headers = true
@@ -45,6 +67,9 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					difficultyConfig.rarityLimits[rarity] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot)
 					rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
 				end
+				if not attuneConfig.guiRules[rarity] then
+					attuneConfig.guiRules[rarity] = {}
+				end
 
 				local slotRow = slotTable:AddRow()
 				slotRow:AddCell():AddText(rarity):SetColor("Text", RarityColors[rarity])
@@ -53,11 +78,52 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					local rarityColor = TableUtils:DeeplyCopyTable(RarityColors[rarity])
 					rarityColor[4] = 0.5 -- turn down the alpha, it bright AF
 
-					local slider = slotRow:AddCell():AddSliderInt("", rarityLimitConfig[category], 1,
+					local sliderCell = slotRow:AddCell()
+					local slider = sliderCell:AddSliderInt("", rarityLimitConfig[category], 1,
 						ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot[category])
 					slider:SetColor("SliderGrab", rarityColor)
 					slider.OnChange = function()
 						rarityLimitConfig[category] = slider.Value[1]
+					end
+
+					if not attuneConfig.guiRules[rarity][category] then
+						attuneConfig.guiRules[rarity][category] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
+					end
+					local guiRules = attuneConfig.guiRules[rarity][category]
+
+					local resourceButton = sliderCell:AddButton("R")
+					resourceButton:SetStyle("FramePadding", 10, 0)
+					setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
+
+					local statusButton = sliderCell:AddButton("S")
+					statusButton:SetStyle("FramePadding", 10, 0)
+					statusButton.SameLine = true
+					setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
+
+					local statusOnLimit = sliderCell:AddButton("SOL")
+					statusOnLimit:SetStyle("FramePadding", 10, 0)
+					statusOnLimit.SameLine = true
+					setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
+
+					resourceButton.OnClick = function()
+						guiRules["resource"] = not guiRules["resource"]
+						setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
+					end
+					statusButton.OnClick = function()
+						guiRules["status"] = not guiRules["status"]
+						setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
+						if guiRules["status"] and guiRules["statusOnLimit"] then
+							guiRules["statusOnLimit"] = false
+							setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
+						end
+					end
+					statusOnLimit.OnClick = function()
+						guiRules["statusOnLimit"] = not guiRules["statusOnLimit"]
+						setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
+						if guiRules["status"] and guiRules["statusOnLimit"] then
+							guiRules["status"] = false
+							setEnabledButtonColor(statusButton, guiRules["status"], rarityColor)
+						end
 					end
 				end
 			end

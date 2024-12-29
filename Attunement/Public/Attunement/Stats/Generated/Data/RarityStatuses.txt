@@ -1,0 +1,17 @@
+new entry "ATTUNEMENT_RARITY_EQUIP_LIMIT_BASE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "h109f4970dfb046f7a08721fbb20d0ec6aaad;1"
+data "Description" "hec44e30c719542efa0d0ed88e0264dc7534e;1"
+data "Icon" "Spell_Evocation_Light
+data "StackId" "UNCOMMON_TOTAL_EQUIP"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog"
+
+new entry "ATTUNEMENT_RARITY_EQUIP_LIMIT_FULL_BASE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "h109f4970dfb046f7a08721fbb20d0ec6aaad;1"
+data "Description" "hec44e30c719542efa0d0ed88e0264dc7534e;1"
+data "Icon" "Spell_Evocation_Light
+data "StackId" "UNCOMMON_TOTAL_EQUIP"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog"
