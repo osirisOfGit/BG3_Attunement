@@ -1,7 +1,3 @@
-Ext.Vars.RegisterUserVariable("Attunement_Disarm_Tracker", {
-	Server = true
-})
-
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat
 local function FixAttunementStatus(itemUUID)
@@ -223,7 +219,7 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 			if resource.Amount == 0 then
 				Osi.ApplyStatus(character, costName, -1, 1)
 			end
-		    ::continue::
+			::continue::
 		end
 	end
 end)
@@ -232,25 +228,6 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 	if MCM.Get("enabled") and Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
 		---@type ItemStat
 		local stat = Ext.Stats.Get(Osi.GetStatString(item))
-		local itemVar = Ext.Entity.Get(item).Vars
-		if itemVar.Attunement_Disarm_Tracker then
-			Logger:BasicDebug("%s was disarmed from %s and picked up by %s", item, itemVar.Attunement_Disarm_Tracker.owner, inventoryHolder)
-			if Osi.IsPartyMember(inventoryHolder, 1) == 1 then
-				Osi.Equip(itemVar.Attunement_Disarm_Tracker.owner, item)
-			else
-				---@type EntityHandle
-				local charEntity = Ext.Entity.Get(inventoryHolder)
-				local resources = charEntity.ActionResources.Resources
-				local resource = resources[getCachedResource("Attunement")][1]
-				resource.Amount = resource.Amount + 1
-				resource.MaxAmount = resource.Amount
-				charEntity:Replicate("ActionResources")
-
-				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
-			end
-			itemVar.Attunement_Disarm_Tracker = nil
-			return
-		end
 
 		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
@@ -276,14 +253,11 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			local costName = string.match(cost, "^[^:]+")
 
 			if string.match(costName, "^.*Attunement$") then
-				local itemDisarmTracker = Ext.Entity.Get(item).Vars.Attunement_Disarm_Tracker
-				-- Disarm fires before Unequipped, so need to ensure we're not undoing its work
-				if costName == "Attunement" and not itemDisarmTracker then
-					Logger:BasicDebug("%s was not disarmed - setting back to requiring attunement", item)
+				if costName == "Attunement" then
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
-				if not next(playerSubs) and (costName ~= "Attunement" or not itemDisarmTracker) then
+				if not next(playerSubs) then
 					local resource = resources[getCachedResource(costName)][1]
 					resource.Amount = resource.Amount + 1
 					resource.MaxAmount = resource.Amount
@@ -294,18 +268,5 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 			end
 		end
 		charEntity:Replicate("ActionResources")
-	end
-end)
-
-Ext.Osiris.RegisterListener("CharacterDisarmed", 3, "after", function(character, item, slotName)
-	if MCM.Get("enabled") then
-		if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 and Osi.IsPartyMember(character, 0) == 1 then
-			Logger:BasicDebug("%s was disarmed, losing their attuned weapon %s, so preserving the link", character, item)
-			local itemEntity = Ext.Entity.Get(item)
-			itemEntity.Vars.Attunement_Disarm_Tracker = {
-				owner = character,
-				slot = slotName
-			}
-		end
 	end
 end)
