@@ -111,7 +111,7 @@
     <content contentuid="h838d4b555a7c471f86daa380f5e8f37a0796" version="1">0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)</content>
     <!-- END GENERAL MCM -->
     
-    <content contentuid="hd547009b37a14dc2b8a5140db50ac5013050" version="1">THIS IS WRONG BUT SHOULD END UP RIGHT</content>
+    <content contentuid="hd547009b37a14dc2b8a5140db50ac5013050" version="1">Uncommon</content>
     <content contentuid="h1e84b7f41e9c477f9cbf104b0c01f5170g1d" version="1">Rare</content>
     <content contentuid="hccaa2492212e4dba8dbed27aa5e9f2c6d97g" version="1">VeryRare</content>
     <content contentuid="h8e755293e99f4772b83589687d07154e0b4c" version="1">Legendary</content>
@@ -139,11 +139,11 @@
     <!-- START ITEMCONFIG MCM -->
     <content contentuid="h4c45e8b8151248f08a8ff2981cec7a1d98eb" version="1">"Item Display Name: "</content>
     <content contentuid="h1ba636b3434548cfb1e781b31aa7aa7d26a0" version="1">Stat Name:</content>
-    <content contentuid="he692a71b4c45405f9405e88d13d9bcf0fc2a" version="1">Using</content>
-    <content contentuid="h306b787c0443437cba2e1a4ed9b0656335b0" version="1">Slot:</content>
-    <content contentuid="h6ad39c479bda4e4b9765fbacdc24609bcffe" version="1">PassivesOnEquip:</content>
-    <content contentuid="hbe248d65b38d4fa889d0730a37d8a3c5dag9" version="1">StatusOnEquip:</content>
-    <content contentuid="hba40e4d0e1714d2594e4314d775ccb7b1688" version="1">Boosts:</content>
+    <content contentuid="he692a71b4c45405f9405e88d13d9bcf0fc2a" version="1">Using: </content>
+    <content contentuid="h306b787c0443437cba2e1a4ed9b0656335b0" version="1">Slot: </content>
+    <content contentuid="h6ad39c479bda4e4b9765fbacdc24609bcffe" version="1">PassivesOnEquip: </content>
+    <content contentuid="hbe248d65b38d4fa889d0730a37d8a3c5dag9" version="1">StatusOnEquip: </content>
+    <content contentuid="hba40e4d0e1714d2594e4314d775ccb7b1688" version="1">Boosts: </content>
     <content contentuid="h8aed0a59847a4519b6b34b82ad249a28gggf" version="1">From mod '%s' by '%s'</content>
     <content contentuid="h1ac6a2eaa3a640ee9fea0800bdd849cdb4dc" version="1">Originally from mod '%s' by '%s'</content>
     <content contentuid="h602a4b35d1bf45d8862a99fde53c212fg036" version="1">Reload to see changes on existing items</content>
