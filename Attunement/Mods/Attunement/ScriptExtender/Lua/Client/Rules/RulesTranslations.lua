@@ -11,7 +11,7 @@ Translator:RegisterTranslation({
 	["MEDIUM"] = "h393274c346e84177b5f8c4ab99c1440e1fea",
 	["HARD"] = "h8e4386ebee3d4ce2971270130587afc49367",
 	["HONOUR"] = "hefeb5922ace84ce59ca95843e8a62911d3ef",
-	["BASE"] = "h01882dc708ea41a9af8f583f288ac8cdc99e",
+	["Base"] = "h01882dc708ea41a9af8f583f288ac8cdc99e",
 	["Total"] = "hc6b84f5f11644290a86c29a562173b0193a3",
 	["Weapons"] = "h3a0420cfb3a04cfd9b2a03cb0bff2c00503a",
 	["Armor"] = "hf2053b8d17944593a6239f4304896b4c914g",

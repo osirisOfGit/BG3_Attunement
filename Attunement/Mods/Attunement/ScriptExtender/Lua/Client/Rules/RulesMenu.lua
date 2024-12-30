@@ -78,7 +78,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				difficultyConfig = attuneConfig.difficulties[diffId]
 			end
 
-			local section = difficultyGroup:AddCollapsingHeader(diffId)
+			local section = difficultyGroup:AddCollapsingHeader(Translator:translate(diffId))
+
 			section:AddText(Translator:translate("Total Number Of Attuned Items Allowed"))
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
 			local attunementGuiRules = ConfigurationStructure.config.rules.attunementGuiRules
@@ -135,7 +136,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				end
 
 				local slotRow = slotTable:AddRow()
-				slotRow:AddCell():AddText(rarity):SetColor("Text", RarityColors[rarity])
+				slotRow:AddCell():AddText(Translator:translate(rarity)):SetColor("Text", RarityColors[rarity])
 
 				for _, category in ipairs(RarityLimitCategories) do
 					local rarityColor = TableUtils:DeeplyCopyTable(RarityColors[rarity])
@@ -193,8 +194,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 			difficultySelect.OnActivate = function()
 				if difficultySelect.UserData then
-					attuneConfig[difficulty].delete = true
-					attuneConfig[difficulty] = nil
+					attuneConfig.difficulties[difficulty].delete = true
+					attuneConfig.difficulties[difficulty] = nil
 					difficultySelect.UserData:Destroy()
 					difficultySelect.UserData = nil
 				else
@@ -202,7 +203,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				end
 			end
 
-			if attuneConfig[difficulty] then
+			if attuneConfig.difficulties[difficulty] then
 				difficultySelect.Selected = true
 				difficultySelect:OnActivate()
 			end
