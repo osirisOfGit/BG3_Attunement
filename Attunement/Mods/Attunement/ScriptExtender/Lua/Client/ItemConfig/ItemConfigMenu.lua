@@ -189,7 +189,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			local rarityCombo = rarityCell:AddCombo("")
 			rarityCombo.Options = rarityThreshold.Options
 			local raritySelectIndex = 0
-			for index, rarity in rarityThreshold.Options do
+			for index, rarity in pairs(rarityThreshold.Options) do
 				if rarity == itemStat.Rarity then
 					raritySelectIndex = index - 1
 				end
