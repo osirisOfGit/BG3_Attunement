@@ -1,3 +1,5 @@
+Ext.Require("Client/ItemConfig/ItemConfigTranslations.lua")
+
 ---@type table<FixedString, ItemTemplate>
 local rootsByName = {}
 local sortedTemplateNames = {}
@@ -62,8 +64,8 @@ end)
 ---@param itemTemplate ItemTemplate
 local function BuildStatusTooltip(tooltip, itemStat, itemTemplate)
 	tooltip:AddText("\n")
-	tooltip:AddText("Item Display Name: " .. (itemTemplate.DisplayName:Get() or "N/A"))
-	tooltip:AddText("Stat Name: " .. itemStat.Name)
+	tooltip:AddText(Translator:translate("Item Display Name: ") .. (itemTemplate.DisplayName:Get() or "N/A"))
+	tooltip:AddText(Translator:translate("Stat Name: ") .. itemStat.Name)
 
 	-- local description = itemTemplate.Description:Get() or "N/A"
 	-- -- Getting rid of all content contained in <>, like <LsTags../> and <br/>
@@ -72,35 +74,37 @@ local function BuildStatusTooltip(tooltip, itemStat, itemTemplate)
 	-- desc.TextWrapPos = 600
 
 	if itemStat.Using ~= "" then
-		tooltip:AddText("Using: " .. itemStat.Using)
+		tooltip:AddText(Translator:translate("Using: ") .. itemStat.Using)
 	end
 
 	if itemStat.Slot ~= "" then
-		tooltip:AddText("Slot: " .. itemStat.Slot)
+		tooltip:AddText(Translator:translate("Slot: ") .. itemStat.Slot)
 	end
 
 	if itemStat.PassivesOnEquip ~= "" then
-		tooltip:AddText("PassivesOnEquip: " .. itemStat.PassivesOnEquip)
+		tooltip:AddText(Translator:translate("PassivesOnEquip: ") .. itemStat.PassivesOnEquip)
 	end
 
 	if itemStat.StatusOnEquip ~= "" then
-		tooltip:AddText("StatusOnEquip: " .. itemStat.StatusOnEquip)
+		tooltip:AddText(Translator:translate("StatusOnEquip: ") .. itemStat.StatusOnEquip)
 	end
 
 	if itemStat.Boosts ~= "" then
-		tooltip:AddText("Boosts: " .. itemStat.Boosts).TextWrapPos = 900
+		tooltip:AddText(Translator:translate("Boosts: ") .. itemStat.Boosts).TextWrapPos = 900
 	end
 
 	if itemStat.ModId ~= "" then
 		local mod = Ext.Mod.GetMod(itemStat.ModId).Info
-		tooltip:AddText(string.format("From mod '%s' by '%s'", mod.Name, mod.Author))
+		tooltip:AddText(string.format(Translator:translate("From mod '%s' by '%s'"), mod.Name, mod.Author))
 	end
 
 	if itemStat.OriginalModId ~= "" and itemStat.OriginalModId ~= itemStat.ModId then
 		local mod = Ext.Mod.GetMod(itemStat.OriginalModId).Info
-		tooltip:AddText(string.format("Originally from mod '%s' by '%s'", mod.Name, mod.Author))
+		tooltip:AddText(string.format(Translator:translate("Originally from mod '%s' by '%s'"), mod.Name, mod.Author))
 	end
 end
+
+local rarityTranslatedTable = {}
 
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
@@ -109,11 +113,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 		local itemConfig = ConfigurationStructure.config.items
 
-		tabHeader:AddText("Reload (restart unnecessary) to see changes on existing items")
+		tabHeader:AddText(Translator:translate("Reload to see changes on existing items"))
 		--#region Search
-		tabHeader:AddText("Items with 'Common' rarity are filtered out")
+		tabHeader:AddText(Translator:translate("Items with 'Common' rarity are filtered out"))
 
-		tabHeader:AddText("Items with Rarity Level")
+		tabHeader:AddText(Translator:translate("Items with Rarity Level"))
 		local rarityThreshold = tabHeader:AddCombo("")
 		rarityThreshold.SameLine = true
 		rarityThreshold.WidthFitPreview = true
@@ -123,22 +127,23 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			if rarity == itemConfig.attunementRarityThreshold then
 				selectIndex = #opts
 			end
-			table.insert(opts, rarity)
+			rarityTranslatedTable[Translator:translate(rarity)] = rarity
+			table.insert(opts, Translator:translate(rarity))
 		end
 		rarityThreshold.Options = opts
 		rarityThreshold.SelectedIndex = selectIndex
 		rarityThreshold.OnChange = function(rarityThresholdCombo)
-			itemConfig.attunementRarityThreshold = rarityThresholdCombo.Options[rarityThresholdCombo.SelectedIndex + 1]
+			itemConfig.attunementRarityThreshold = rarityTranslatedTable[rarityThresholdCombo.Options[rarityThresholdCombo.SelectedIndex + 1]]
 		end
 
-		tabHeader:AddText("or above can default to requiring Attunement").SameLine = true
+		tabHeader:AddText(Translator:translate("or above can default to requiring Attunement")).SameLine = true
 
 		local searchInput = tabHeader:AddInputText("")
 		searchInput.Hint = "Case-insensitive"
 		searchInput.AutoSelectAll = true
 		searchInput.EscapeClearsAll = true
 
-		tabHeader:AddText("List all items by mod - will be cleared if above search is used")
+		tabHeader:AddText(Translator:translate("List all items by mod - will be cleared if above search is used"))
 		local getAllForModCombo = tabHeader:AddCombo("")
 		getAllForModCombo.WidthFitPreview = true
 		local modOpts = {}
@@ -152,14 +157,14 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		resultsTable.Hideable = true
 		resultsTable.Visible = false
 		resultsTable.ScrollY = true
-		resultsTable.SizingStretchSame = true
+		resultsTable.SizingFixedSame = true
 		resultsTable.RowBg = true
 
 		local headerRow = resultsTable:AddRow()
 		headerRow.Headers = true
-		headerRow:AddCell():AddText("Template")
-		headerRow:AddCell():AddText("Rarity")
-		headerRow:AddCell():AddText("Requires Attunement")
+		headerRow:AddCell():AddText(Translator:translate("Template"))
+		headerRow:AddCell():AddText(Translator:translate("Rarity"))
+		headerRow:AddCell():AddText(Translator:translate("Requires Attunement"))
 
 		local function displayResultInTable(templateName)
 			local itemTemplate = rootsByName[templateName]
@@ -182,16 +187,14 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			--#region Rarity
 			local rarityCell = newRow:AddCell()
 			local rarityCombo = rarityCell:AddCombo("")
-			local opts = {}
-			local selectIndex = 0
-			for _, rarity in ipairs(RarityEnum) do
+			rarityCombo.Options = rarityThreshold.Options
+			local raritySelectIndex = 0
+			for index, rarity in rarityThreshold.Options do
 				if rarity == itemStat.Rarity then
-					selectIndex = #opts
+					raritySelectIndex = index - 1
 				end
-				table.insert(opts, rarity)
 			end
-			rarityCombo.Options = opts
-			rarityCombo.SelectedIndex = selectIndex
+			rarityCombo.SelectedIndex = raritySelectIndex
 
 			-- ico comes from https://github.com/AtilioA/BG3-MCM/blob/83bbf711ac5feeb8d026345e2d64c9f19543294a/Mod Configuration Menu/Public/Shared/GUI/UIBasic_24-96.lsx#L1529
 			local resetRarityButton = rarityCell:AddImageButton("resetRarity", "ico_reset_d", { 32, 32 })
@@ -216,7 +219,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			rarityCombo.OnChange = function()
 				local rarityOverride = itemConfig.rarityOverrides[itemStat.Name]
 				---@type Rarity
-				local selectedRarity = rarityCombo.Options[rarityCombo.SelectedIndex + 1]
+				local selectedRarity = rarityTranslatedTable[rarityCombo.Options[rarityCombo.SelectedIndex + 1]]
 
 				if not rarityOverride then
 					itemConfig.rarityOverrides[itemStat.Name] = {
@@ -274,7 +277,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 					child:Destroy()
 				end
 			end
-			-- \[[[^_^]]]/
+			-- \[[[^_^]]]/ 
 			for _, templateName in pairs(templateNameByModId[modIdByModName[getAllForModCombo.Options[getAllForModCombo.SelectedIndex + 1]]]) do
 				displayResultInTable(templateName)
 			end

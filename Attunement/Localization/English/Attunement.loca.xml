@@ -100,6 +100,8 @@
     <content contentuid="h04977baffe004e4ca2a7082d280e6a9ce940" version="1">Legendary Accessories Equip Limit Reached</content>
     <content contentuid="h52ec6ac3bcbd4b6184e2e48ac0fb8af930a7" version="1">You can no longer equip any accessories that have the 'Legendary' rarity</content>
     <!-- END RARITY STATUSES -->
+
+    <!-- BEGIN GENERAL MCM -->
     <content contentuid="habf22a0adc65460da381ac71e4033d11c85e" version="1">Enables or disables the mod. Restart your game when disabling to fully clear stat changes.</content>
     <content contentuid="h00aacc9655e949239e57f8ce94ca32c339d8" version="1">General</content>
     <content contentuid="h8ff17773028742ef8f317e869b25b448be46" version="1">General Settings</content>
@@ -107,4 +109,50 @@
     <content contentuid="h8f6e37ff1b634b3d9dd0978f96207cc578g4" version="1">Enable Mod</content>
     <content contentuid="h4adbc671c54d486ca3989249c74cf6ee1e4c" version="1">Log level</content>
     <content contentuid="h838d4b555a7c471f86daa380f5e8f37a0796" version="1">0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)</content>
+    <!-- END GENERAL MCM -->
+    
+    <content contentuid="hd547009b37a14dc2b8a5140db50ac5013050" version="1">Uncommon</content>
+    <content contentuid="h1e84b7f41e9c477f9cbf104b0c01f5170g1d" version="1">Rare</content>
+    <content contentuid="hccaa2492212e4dba8dbed27aa5e9f2c6d97g" version="1">VeryRare</content>
+    <content contentuid="h8e755293e99f4772b83589687d07154e0b4c" version="1">Legendary</content>
+    
+    <!-- BEGIN RULESMENU MCM -->
+    <content contentuid="h44015c999d984d9d8b30ec4cda0769b61gb7" version="1">All configurations are per-character's equipment - reload to apply changes. Add difficulty-specific configs using the + button below.</content>
+    <content contentuid="h311df199543f4b319408ddb0d62d88cda12g" version="1">Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')</content>
+    <content contentuid="h6440e07863614f06ba915a7d9c31272d4899" version="1">The resource only shows when you're _below_ the equip limit for the given resource, and the status only shows when you've reached the given equip limit</content>
+    <content contentuid="h08a487c833894446b381bbcda13f538d3adc" version="1">The button settings are copied between difficulties - only the sliders are per-difficulty</content>
+    <content contentuid="h4582fbdc45fb43928b4c7df70c9e49651e10" version="1">Total Number Of Attuned Items Allowed</content>
+    <content contentuid="hc11fa07bed57481db27ff90a2d5141ed5e02" version="1">RES</content>
+    <content contentuid="h53a82ffebb724fa08821989fb2ece04c3af2" version="1">STAT</content>
+    <content contentuid="h6db3932f27bf4cc18f351b7b00192942f3g6" version="1">Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)</content>
+    <content contentuid="h201fd9f008584cef9a0b7c1adb2f56da8b73" version="1">EASY</content>
+    <content contentuid="h393274c346e84177b5f8c4ab99c1440e1fea" version="1">MEDIUM</content>
+    <content contentuid="h8e4386ebee3d4ce2971270130587afc49367" version="1">HARD</content>
+    <content contentuid="hefeb5922ace84ce59ca95843e8a62911d3ef" version="1">HONOUR</content>
+    <content contentuid="h01882dc708ea41a9af8f583f288ac8cdc99e" version="1">BASE</content>
+    <content contentuid="hc6b84f5f11644290a86c29a562173b0193a3" version="1">Total</content>
+    <content contentuid="h3a0420cfb3a04cfd9b2a03cb0bff2c00503a" version="1">Weapons</content>
+    <content contentuid="hf2053b8d17944593a6239f4304896b4c914g" version="1">Armor</content>
+    <content contentuid="h9e657c80df0e434a8dab174ad098454ada12" version="1">Accessories</content>
+    <!-- END RULESMENU MCM -->
+    
+    <!-- START ITEMCONFIG MCM -->
+    <content contentuid="h4c45e8b8151248f08a8ff2981cec7a1d98eb" version="1">"Item Display Name: "</content>
+    <content contentuid="h1ba636b3434548cfb1e781b31aa7aa7d26a0" version="1">Stat Name:</content>
+    <content contentuid="he692a71b4c45405f9405e88d13d9bcf0fc2a" version="1">Using: </content>
+    <content contentuid="h306b787c0443437cba2e1a4ed9b0656335b0" version="1">Slot: </content>
+    <content contentuid="h6ad39c479bda4e4b9765fbacdc24609bcffe" version="1">PassivesOnEquip: </content>
+    <content contentuid="hbe248d65b38d4fa889d0730a37d8a3c5dag9" version="1">StatusOnEquip: </content>
+    <content contentuid="hba40e4d0e1714d2594e4314d775ccb7b1688" version="1">Boosts: </content>
+    <content contentuid="h8aed0a59847a4519b6b34b82ad249a28gggf" version="1">From mod '%s' by '%s'</content>
+    <content contentuid="h1ac6a2eaa3a640ee9fea0800bdd849cdb4dc" version="1">Originally from mod '%s' by '%s'</content>
+    <content contentuid="h602a4b35d1bf45d8862a99fde53c212fg036" version="1">Reload to see changes on existing items</content>
+    <content contentuid="h1cdbe564381a49a48fb9d48d5dae1881fb4d" version="1">Items with 'Common' rarity are filtered out</content>
+    <content contentuid="hf54520331be04d4694a634db217a66a61cbf" version="1">Items with Rarity Level</content>
+    <content contentuid="h66a4440030ad4fc18c82ab0c599712e0749b" version="1">or above can default to requiring Attunement</content>
+    <content contentuid="hb6f05b79f45d46ebb3a556857600f69f80bg" version="1">List all items by mod - will be cleared if above search is used</content>
+    <content contentuid="hd1dfac665a764a18a61f61d3c95a6e31g5d0" version="1">Template</content>
+    <content contentuid="h7541adf7415341fa9fceadfd9c01ace5f3b2" version="1">Rarity</content>
+    <content contentuid="hb097564bca214e1f96fdc9487f7ac149c70e" version="1">Requires Attunement</content>
+    <!-- END ITEMCONFIG MCM -->
 </contentList>

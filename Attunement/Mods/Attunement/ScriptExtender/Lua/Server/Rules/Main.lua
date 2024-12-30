@@ -299,7 +299,7 @@ end)
 
 Ext.Osiris.RegisterListener("CharacterDisarmed", 3, "after", function(character, item, slotName)
 	if MCM.Get("enabled") then
-		if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+		if Osi.HasActiveStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 and Osi.IsPartyMember(character, 0) == 1 then
 			Logger:BasicDebug("%s was disarmed, losing their attuned weapon %s, so preserving the link", character, item)
 			local itemEntity = Ext.Entity.Get(item)
 			itemEntity.Vars.Attunement_Disarm_Tracker = {

@@ -1,3 +1,5 @@
+Ext.Require("Client/Rules/RulesTranslations.lua")
+
 ---@type {[string]: RarityGuiRules}
 local transformedRarityGuiRules = {}
 
@@ -60,10 +62,10 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local moreInfo = tabHeader:AddImageButton("More Info", "Action_Help", { 30, 30 })
 		local moreInfoTooltip = moreInfo:Tooltip()
-		moreInfoTooltip:AddText("\t\tAll configurations are per-character's equipment - reload to apply changes. Add difficulty-specific configs using the + button below.")
-		moreInfoTooltip:AddText("Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')")
-		moreInfoTooltip:AddText("The resource only shows when you're _below_ the equip limit for the given resource, and the status only shows when you've reached the given equip limit")
-		moreInfoTooltip:AddText("The button settings are copied between difficulties - only the sliders are per-difficulty")
+		moreInfoTooltip:AddText("\t\t" .. Translator:translate("\t\tAll configurations are per-character's equipment - reload to apply changes. Add difficulty-specific configs using the + button below."))
+		moreInfoTooltip:AddText(Translator:translate("Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')"))
+		moreInfoTooltip:AddText(Translator:translate("The resource only shows when you're _below_ the equip limit for the given resource, and the status only shows when you've reached the given equip limit"))
+		moreInfoTooltip:AddText(Translator:translate("The button settings are copied between difficulties - only the sliders are per-difficulty"))
 
 		local difficultyGroup = tabHeader:AddGroup("Difficulties")
 
@@ -76,15 +78,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				difficultyConfig = attuneConfig.difficulties[diffId]
 			end
 
-			local section = difficultyGroup:AddCollapsingHeader(diffId)
-			section:AddText("Total Number Of Attuned Items Allowed")
+			local section = difficultyGroup:AddCollapsingHeader(Translator:translate(diffId))
+
+			section:AddText(Translator:translate("Total Number Of Attuned Items Allowed"))
 			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
 			local attunementGuiRules = ConfigurationStructure.config.rules.attunementGuiRules
-			local attunementResourceButton = section:AddButton("RES")
+			local attunementResourceButton = section:AddButton(Translator:translate("RES"))
 			attunementResourceButton:SetStyle("FramePadding", 15, 0)
 			setEnabledButtonColor(attunementResourceButton, attunementGuiRules["resource"], { 0.458, 0.4, 0.29, 1.0 })
 
-			local attunementStatusButton = section:AddButton("STAT")
+			local attunementStatusButton = section:AddButton(Translator:translate("STAT"))
 			attunementStatusButton:SetStyle("FramePadding", 20, 0)
 			attunementStatusButton.SameLine = true
 			setEnabledButtonColor(attunementStatusButton, attunementGuiRules["statusOnLimit"], { 0.458, 0.4, 0.29, 1.0 })
@@ -108,7 +111,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			end
 
 			section:AddNewLine()
-			section:AddText("Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)")
+			section:AddText(Translator:translate("Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)"))
 			local slotTable = section:AddTable("RarityBySlot", 5)
 			slotTable.SizingStretchSame = true
 			slotTable.BordersInnerH = true
@@ -117,10 +120,10 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			local headerRow = slotTable:AddRow()
 			headerRow.Headers = true
 			headerRow:AddCell():AddText("")
-			headerRow:AddCell():AddText("Total")
-			headerRow:AddCell():AddText("Weapons")
-			headerRow:AddCell():AddText("Armor")
-			headerRow:AddCell():AddText("Accessories")
+			headerRow:AddCell():AddText(Translator:translate("Total"))
+			headerRow:AddCell():AddText(Translator:translate("Weapons"))
+			headerRow:AddCell():AddText(Translator:translate("Armor"))
+			headerRow:AddCell():AddText(Translator:translate("Accessories"))
 
 			for _, rarity in ipairs(RarityEnum) do
 				local rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
@@ -133,7 +136,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				end
 
 				local slotRow = slotTable:AddRow()
-				slotRow:AddCell():AddText(rarity):SetColor("Text", RarityColors[rarity])
+				slotRow:AddCell():AddText(Translator:translate(rarity)):SetColor("Text", RarityColors[rarity])
 
 				for _, category in ipairs(RarityLimitCategories) do
 					local rarityColor = TableUtils:DeeplyCopyTable(RarityColors[rarity])
@@ -152,11 +155,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 					end
 					local guiRules = attuneConfig.rarityGuiRules[rarity][category]
 
-					local resourceButton = sliderCell:AddButton("RES")
+					local resourceButton = sliderCell:AddButton(Translator:translate("RES"))
 					resourceButton:SetStyle("FramePadding", 10, 0)
 					setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
 
-					local statusOnLimit = sliderCell:AddButton("STAT")
+					local statusOnLimit = sliderCell:AddButton(Translator:translate("STAT"))
 					statusOnLimit:SetStyle("FramePadding", 7, 0)
 					statusOnLimit.SameLine = true
 					setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
@@ -191,8 +194,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 			difficultySelect.OnActivate = function()
 				if difficultySelect.UserData then
-					attuneConfig[difficulty].delete = true
-					attuneConfig[difficulty] = nil
+					attuneConfig.difficulties[difficulty].delete = true
+					attuneConfig.difficulties[difficulty] = nil
 					difficultySelect.UserData:Destroy()
 					difficultySelect.UserData = nil
 				else
@@ -200,7 +203,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 				end
 			end
 
-			if attuneConfig[difficulty] then
+			if attuneConfig.difficulties[difficulty] then
 				difficultySelect.Selected = true
 				difficultySelect:OnActivate()
 			end
