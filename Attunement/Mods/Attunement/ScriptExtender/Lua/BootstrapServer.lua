@@ -7,6 +7,7 @@ Ext.Require("Shared/Configurations/_ConfigurationStructure.lua")
 Ext.Require("Server/_ConfigManager.lua")
 Ext.Require("Server/Rules/Main.lua")
 Ext.Require("Server/Rules/BuildRelevantStatFunctions.lua")
+Ext.Require("Server/ItemSpawner/ItemSpawner.lua")
 
 
 Ext.ModEvents.BG3MCM["MCM_Setting_Saved"]:Subscribe(function(payload)

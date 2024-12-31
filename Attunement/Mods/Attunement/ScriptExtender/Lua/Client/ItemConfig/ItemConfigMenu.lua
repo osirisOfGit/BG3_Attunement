@@ -177,7 +177,14 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			local itemStat = Ext.Stats.Get(itemTemplate.Stats)
 
 			local nameCell = newRow:AddCell()
+			local spawnItem = nameCell:AddImageButton("Spawn_Item", "Spell_Conjuration_MageHand", {32, 32})
+			spawnItem:Tooltip():AddText("\t\t" .. Translator:translate("Preview item - will equip to your controlled character for 60 seconds"))
+			spawnItem.OnClick = function ()
+				Ext.Net.PostMessageToServer(ModuleUUID .. "SpawnItem", itemTemplate.Id)
+			end
+
 			local icon = nameCell:AddImage(itemTemplate.Icon or "Item_Unknown", { 32, 32 })
+			icon.SameLine = true
 			icon.Border = RarityColors[itemStat.Rarity]
 
 			nameCell:AddText(templateName).SameLine = true
@@ -277,7 +284,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 					child:Destroy()
 				end
 			end
-			-- \[[[^_^]]]/ 
+			-- \[[[^_^]]]/
 			for _, templateName in pairs(templateNameByModId[modIdByModName[getAllForModCombo.Options[getAllForModCombo.SelectedIndex + 1]]]) do
 				displayResultInTable(templateName)
 			end
