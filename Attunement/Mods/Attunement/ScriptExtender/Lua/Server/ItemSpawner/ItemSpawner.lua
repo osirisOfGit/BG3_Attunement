@@ -1,5 +1,3 @@
--- Ext.Vars.RegisterUserVariable("Attunement_Item_Preview")
-
 function PeerToUserID(peerID)
 	-- usually just userid+1
 	return (peerID & 0xffff0000) | 0x0001
@@ -14,7 +12,6 @@ Ext.RegisterNetListener(ModuleUUID .. "SpawnItem", function(channel, templateUUI
 
 	table.insert(previewingItems, templateUUID)
 
-	
 	Ext.Timer.WaitFor(1000, function()
 		previewingItems[#previewingItems + 1] = nil
 	end)
@@ -30,10 +27,6 @@ Ext.Osiris.RegisterListener("TemplateAddedTo", 4, "after", function(objectTempla
 			local equippedItem = Osi.GetEquippedItem(inventoryHolder, Ext.Stats.Get(Osi.GetStatString(object2)).Slot)
 
 			Osi.Equip(inventoryHolder, object2, 1, 1)
-
-			-- local characterEntity = Ext.Entity.Get(inventoryHolder)
-			-- local previewTracker = characterEntity.Vars.Attunement_Item_Preview or {}
-			-- previewTracker[object2] = equippedItem or ""
 
 			Ext.Timer.WaitFor(60000, function()
 				Logger:BasicInfo("Cleaning up preview item %s from %s", object2, inventoryHolder)
