@@ -1,83 +1,63 @@
-﻿<save>
-	<version major="4" minor="7" revision="1" build="3" lslib_meta="v1,bswap_guids,lsf_keys_adjacency" />
-	<region id="config">
-		<node id="config">
-			<children>
-				<node id="entries">
-					<children>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="48" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="48" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="80" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="80" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/CC/icons_resources/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="128" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="128" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Highlight/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="48" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="48" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Missing/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="48" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="48" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Used/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="48" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="48" />
-								</node>
-							</children>
-						</node>
-						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Attunement.png" />
-							<children>
-								<node id="entries">
-									<attribute id="h" type="int16" value="48" />
-									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="48" />
-								</node>
-							</children>
-						</node>
-					</children>
-				</node>
-			</children>
-		</node>
-	</region>
+<?xml version="1.0" encoding="UTF-8"?>
+<save>
+    <version major="4" minor="7" revision="1" build="3"/>
+    <region id="IconUVList">
+        <node id="root">
+            <children>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="Attunement"/>
+                    <attribute id="U1" type="float" value="0.0009765625"/>
+                    <attribute id="U2" type="float" value="0.12402344"/>
+                    <attribute id="V1" type="float" value="0.0009765625"/>
+                    <attribute id="V2" type="float" value="0.12402344"/>
+                </node>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="LegendaryTotalLimitAttunement"/>
+                    <attribute id="U1" type="float" value="0.12597656"/>
+                    <attribute id="U2" type="float" value="0.24902344"/>
+                    <attribute id="V1" type="float" value="0.0009765625"/>
+                    <attribute id="V2" type="float" value="0.12402344"/>
+                </node>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="Needs_Attunement"/>
+                    <attribute id="U1" type="float" value="0.25097656"/>
+                    <attribute id="U2" type="float" value="0.37402344"/>
+                    <attribute id="V1" type="float" value="0.0009765625"/>
+                    <attribute id="V2" type="float" value="0.12402344"/>
+                </node>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="RareTotalLimitAttunement"/>
+                    <attribute id="U1" type="float" value="0.37597656"/>
+                    <attribute id="U2" type="float" value="0.49902344"/>
+                    <attribute id="V1" type="float" value="0.0009765625"/>
+                    <attribute id="V2" type="float" value="0.12402344"/>
+                </node>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="VeryRareTotalLimitAttunement"/>
+                    <attribute id="U1" type="float" value="0.50097656"/>
+                    <attribute id="U2" type="float" value="0.62402344"/>
+                    <attribute id="V1" type="float" value="0.0009765625"/>
+                    <attribute id="V2" type="float" value="0.12402344"/>
+                </node>
+            </children>
+        </node>
+    </region>
+    <region id="TextureAtlasInfo">
+        <node id="root">
+            <children>
+                <node id="TextureAtlasIconSize">
+                    <attribute id="Height" type="int32" value="64"/>
+                    <attribute id="Width" type="int32" value="64"/>
+                </node>
+                <node id="TextureAtlasPath">
+                    <attribute id="Path" type="string" value="Assets/Textures/Icons/attunement.dds"/>
+                    <attribute id="UUID" type="FixedString" value="49d51680-c4c2-1c10-f4b7-a0d0426a70f9"/>
+                </node>
+                <node id="TextureAtlasTextureSize">
+                    <attribute id="Height" type="int32" value="512"/>
+                    <attribute id="Width" type="int32" value="512"/>
+                </node>
+            </children>
+        </node>
+    </region>
 </save>

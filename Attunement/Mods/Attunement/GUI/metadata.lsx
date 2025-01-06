@@ -7,12 +7,162 @@
 				<node id="entries">
 					<children>
 						<node id="Object">
-							<attribute id="MapKey" type="FixedString" value="Assets/Attunement.png" />
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Resources/Attunement.png" />
 							<children>
 								<node id="entries">
-									<attribute id="h" type="int16" value="56" />
+									<attribute id="h" type="int16" value="64" />
 									<attribute id="mipcount" type="int8" value="1" />
-									<attribute id="w" type="int16" value="56" />
+									<attribute id="w" type="int16" value="60" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Resources/LegendaryTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Resources/RareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Resources/VeryRareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/Attunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="64" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="60" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/LegendaryTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/RareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/ActionResources_c/Icons/VeryRareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Highlight/Attunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="64" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="60" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Highlight/LegendaryTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Highlight/RareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Highlight/VeryRareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/Attunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="64" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="60" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/LegendaryTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/RareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
+								</node>
+							</children>
+						</node>
+						<node id="Object">
+							<attribute id="MapKey" type="FixedString" value="Assets/Shared/Resources/VeryRareTotalLimitAttunement.png" />
+							<children>
+								<node id="entries">
+									<attribute id="h" type="int16" value="36" />
+									<attribute id="mipcount" type="int8" value="1" />
+									<attribute id="w" type="int16" value="36" />
 								</node>
 							</children>
 						</node>
