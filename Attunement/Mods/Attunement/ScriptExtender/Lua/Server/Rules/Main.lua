@@ -272,14 +272,12 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
-				-- if not next(playerSubs) then
 				local resource = resources[getCachedResource(costName)][1]
 				resource.Amount = resource.Amount + 1
 				resource.MaxAmount = resource.Amount
 				if resource.Amount > 0 and Osi.HasActiveStatus(character, costName) == 1 then
 					Osi.RemoveStatus(character, costName)
 				end
-				-- end
 			end
 		end
 		charEntity:Replicate("ActionResources")
