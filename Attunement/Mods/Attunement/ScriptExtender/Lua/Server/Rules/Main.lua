@@ -131,6 +131,8 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 					Logger:BasicInfo("Updating equipped + equipable items for %s", player)
 					local resources = playerEntity.ActionResources.Resources
 
+					local toUnequip = {}
+
 					local sentNotification = false
 					for itemSlot, _ in pairs(Ext.Enums.ItemSlot) do
 						itemSlot = tostring(itemSlot)
@@ -150,13 +152,20 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 							---@type ItemStat
 							local stat = FixAttunementStatus(equippedItem)
 
+							local unequippedItem = false
 							for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 								local costName = string.match(cost, "^[^:]+")
 
 								if string.match(costName, "^.*Attunement$") then
 									local resourceToModify = resources[getCachedResource(costName)][1]
-									if resourceToModify.Amount == 0 then
-										Osi.Unequip(player, equippedItem)
+									if resourceToModify.Amount <= 0 then
+										resourceToModify.Amount = resourceToModify.Amount - 1
+
+										if not unequippedItem then
+											table.insert(toUnequip, equippedItem)
+											unequippedItem = true
+										end
+
 										if not sentNotification then
 											sentNotification = true
 											Osi.ShowNotification(player, playerEntity.CustomName.Name .. " had items unequipped due to exceeding Attunement/Rarity Equip Limits")
@@ -165,7 +174,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 										resourceToModify.Amount = resourceToModify.Amount - 1
 										resourceToModify.MaxAmount = resourceToModify.Amount
 
-										if resourceToModify.Amount == 0 then
+										if resourceToModify.Amount <= 0 then
 											Osi.ApplyStatus(player, costName, -1, 1)
 										end
 									end
@@ -173,8 +182,12 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 							end
 						end
 					end
+
 					playerEntity:Replicate("ActionResources")
 					FixAttunementStatusOnEquipables(player)
+					for _, item in pairs(toUnequip) do
+						Osi.Unequip(player, item)
+					end
 				end)
 			end, playerEntity)
 
@@ -207,19 +220,21 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 
 		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
 			local costName = string.match(cost, "^[^:]+")
-			if costName == "Attunement" then
-				if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-					Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
-					Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
-				else
-					goto continue
+			if string.find(costName, "Attunement") then
+				if costName == "Attunement" then
+					if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+						Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+						Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+					else
+						goto continue
+					end
 				end
+				local resource = resources[getCachedResource(costName)][1]
+				if resource.Amount == 0 then
+					Osi.ApplyStatus(character, costName, -1, 1)
+				end
+				::continue::
 			end
-			local resource = resources[getCachedResource(costName)][1]
-			if resource.Amount == 0 then
-				Osi.ApplyStatus(character, costName, -1, 1)
-			end
-			::continue::
 		end
 	end
 end)
@@ -257,13 +272,11 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 				end
 
-				if not next(playerSubs) then
-					local resource = resources[getCachedResource(costName)][1]
-					resource.Amount = resource.Amount + 1
-					resource.MaxAmount = resource.Amount
-					if Osi.HasActiveStatus(character, costName) == 1 then
-						Osi.RemoveStatus(character, costName)
-					end
+				local resource = resources[getCachedResource(costName)][1]
+				resource.Amount = resource.Amount + 1
+				resource.MaxAmount = resource.Amount
+				if resource.Amount > 0 and Osi.HasActiveStatus(character, costName) == 1 then
+					Osi.RemoveStatus(character, costName)
 				end
 			end
 		end
