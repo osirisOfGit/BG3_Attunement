@@ -168,7 +168,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 
 										if not sentNotification then
 											sentNotification = true
-											Osi.ShowNotification(player, playerEntity.CustomName.Name .. " had items unequipped due to exceeding Attunement/Rarity Equip Limits")
+											Osi.ShowNotification(player, (playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid) .. " had items unequipped due to exceeding Attunement/Rarity Equip Limits")
 										end
 									else
 										resourceToModify.Amount = resourceToModify.Amount - 1
