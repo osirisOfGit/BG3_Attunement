@@ -60,7 +60,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 		local attuneConfig = ConfigurationStructure.config.rules
 
-		local moreInfo = tabHeader:AddImageButton("More Info", "Action_Help", { 30, 30 })
+		local moreInfo = tabHeader:AddImageButton("More Info", "Action_Help", { 45, 45 })
 		local moreInfoTooltip = moreInfo:Tooltip()
 		moreInfoTooltip:AddText("\t\t" .. Translator:translate("\t\tAll configurations are per-character's equipment - reload to apply changes. Add difficulty-specific configs using the + button below."))
 		moreInfoTooltip:AddText(Translator:translate("Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')"))
@@ -81,7 +81,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			local section = difficultyGroup:AddCollapsingHeader(Translator:translate(diffId))
 
 			section:AddText(Translator:translate("Total Number Of Attuned Items Allowed"))
-			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, 12)
+			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1, ConfigurationStructure.DynamicClassDefinitions.rules.totalAttunementLimit)
 			local attunementGuiRules = ConfigurationStructure.config.rules.attunementGuiRules
 			local attunementResourceButton = section:AddButton(Translator:translate("RES"))
 			attunementResourceButton:SetStyle("FramePadding", 15, 0)

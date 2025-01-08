@@ -74,7 +74,7 @@ local statFunctions = {
 local function GetDifficulty()
 	-- Thanks Focus
 	local difficulty = Osi.GetRulesetModifierString("cac2d8bd-c197-4a84-9df1-f86f54ad4521")
-	if difficulty == "HARD" and Osi.GetRulesetModifierBool("338450d9-d77d-4950-9e1e-0e7f12210bb3") == 1 then
+	if Osi.GetRulesetModifierBool("ef0506df-da9f-40e2-903a-1349523c1ae4") == 1 then
 		difficulty = "HONOUR"
 	end
 	Logger:BasicInfo("Processing rules with Difficulty rules %s", ConfigManager.ConfigCopy.rules.difficulties[difficulty] and difficulty or "Base")
