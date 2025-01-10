@@ -16,5 +16,8 @@ Translator:RegisterTranslation({
 	["Template"] = "hd1dfac665a764a18a61f61d3c95a6e31g5d0",
 	["Rarity"] = "h7541adf7415341fa9fceadfd9c01ace5f3b2",
 	["Requires Attunement"] = "hb097564bca214e1f96fdc9487f7ac149c70e",
-	["Preview item - will equip to your controlled character for 60 seconds"] = "h03aabeb99b714bd0a06aa9613861f852g6f6"
+	["Preview item - will equip to your controlled character for 60 seconds"] = "h03aabeb99b714bd0a06aa9613861f852g6f6",
+	["Gives Boost(s)"] = "h24fc1e1555524a5392a9db8f9ce6f6b595f9",
+	["Gives Passive(s)"] = "hc097c5a5986841928c0db33491afb54e088b",
+	["Gives Status(es)"] = "h3a660e08f39249e5823458db9b5f6393dd1c",
 })

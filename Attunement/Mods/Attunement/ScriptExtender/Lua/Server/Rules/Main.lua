@@ -1,30 +1,33 @@
 ---@param itemUUID GUIDSTRING
----@return ItemStat
+---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
 	---@type ItemStat
 	local stat = Ext.Stats.Get(Osi.GetStatString(itemUUID))
-	local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
 
-	if requiresAttunement then
-		if Osi.IsEquipped(itemUUID) == 1 then
-			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 0 then
-				Osi.ApplyStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+	if stat then
+		local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
+
+		if requiresAttunement then
+			if Osi.IsEquipped(itemUUID) == 1 then
+				if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 0 then
+					Osi.ApplyStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
+				end
+			else
+				if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 0 then
+					Osi.ApplyStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+				end
 			end
 		else
-			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 0 then
-				Osi.ApplyStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+				Osi.RemoveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
+			end
+			if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
+				Osi.RemoveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS")
 			end
 		end
-	else
-		if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
-			Osi.RemoveStatus(itemUUID, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS")
-		end
-		if Osi.HasActiveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS") == 1 then
-			Osi.RemoveStatus(itemUUID, "ATTUNEMENT_IS_ATTUNED_STATUS")
-		end
-	end
 
-	return stat
+		return stat
+	end
 end
 
 -- Credit to SwissFred57 in Larian Discord for the initial code
@@ -149,33 +152,38 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 
 						local equippedItem = Osi.GetEquippedItem(player, itemSlot)
 						if equippedItem then
-							---@type ItemStat
 							local stat = FixAttunementStatus(equippedItem)
 
-							local unequippedItem = false
-							for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
-								local costName = string.match(cost, "^[^:]+")
+							if stat then
+								local unequippedItem = false
+								for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
+									local costName = string.match(cost, "^[^:]+")
 
-								if string.match(costName, "^.*Attunement$") then
-									local resourceToModify = resources[getCachedResource(costName)][1]
-									if resourceToModify.Amount <= 0 then
-										resourceToModify.Amount = resourceToModify.Amount - 1
-
-										if not unequippedItem then
-											table.insert(toUnequip, equippedItem)
-											unequippedItem = true
-										end
-
-										if not sentNotification then
-											sentNotification = true
-											Osi.ShowNotification(player, (playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid) .. " had items unequipped due to exceeding Attunement/Rarity Equip Limits")
-										end
-									else
-										resourceToModify.Amount = resourceToModify.Amount - 1
-										resourceToModify.MaxAmount = resourceToModify.Amount
-
+									if string.match(costName, "^.*Attunement$") then
+										local resourceToModify = resources[getCachedResource(costName)][1]
 										if resourceToModify.Amount <= 0 then
-											Osi.ApplyStatus(player, costName, -1, 1)
+											resourceToModify.Amount = resourceToModify.Amount - 1
+
+											if not unequippedItem then
+												table.insert(toUnequip, equippedItem)
+												unequippedItem = true
+											end
+
+											if not sentNotification then
+												sentNotification = true
+												Osi.ShowNotification(player,
+													(playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid) ..
+													" had items unequipped due to exceeding Attunement/Rarity Equip Limits")
+											end
+										else
+											resourceToModify.Amount = resourceToModify.Amount - 1
+											resourceToModify.MaxAmount = resourceToModify.Amount
+
+											if resourceToModify.Amount <= 0 then
+												Osi.ApplyStatus(player, costName, -1, 1)
+											elseif Osi.HasActiveStatus(player, costName) == 1 then
+												Osi.RemoveStatus(player, costName) 
+											end
 										end
 									end
 								end
@@ -244,9 +252,21 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 		---@type ItemStat
 		local stat = Ext.Stats.Get(Osi.GetStatString(item))
 
-		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) then
+		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) and Osi.HasActiveStatus then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 		end
+	end
+end)
+
+Ext.Osiris.RegisterListener("Opened", 1, "after", function (item)
+	if MCM.Get("enabled") and Osi.IsContainer(item) == 1 then
+		FixAttunementStatusOnEquipables(item)
+	end
+end)
+
+Ext.Osiris.RegisterListener("RequestCanLoot", 2, "after", function (looter, target)
+	if MCM.Get("enabled") then
+		FixAttunementStatusOnEquipables(target)
 	end
 end)
 

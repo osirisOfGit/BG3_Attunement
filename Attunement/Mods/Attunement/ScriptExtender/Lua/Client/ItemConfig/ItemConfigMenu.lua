@@ -106,6 +106,17 @@ end
 
 local rarityTranslatedTable = {}
 
+local filterSettings = {
+	rarity = {},
+	attunement = {
+		["Gives Passive(s)"] = true,
+		["Gives Status(es)"] = true,
+		["Gives Boost(s)"] = true
+	}
+}
+
+local cachedResults = {}
+
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
 	function(tabHeader)
@@ -157,29 +168,62 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		resultsTable.Hideable = true
 		resultsTable.Visible = false
 		resultsTable.ScrollY = true
-		resultsTable.SizingFixedSame = true
 		resultsTable.RowBg = true
+		-- using table sizing methods shrinks the headers if there are no rows, so users can't change the filters
+		resultsTable:AddColumn("Stat", "WidthStretch")
+		resultsTable:AddColumn("Rarity")
+		resultsTable:AddColumn("Attunement")
 
 		local headerRow = resultsTable:AddRow()
 		headerRow.Headers = true
 		headerRow:AddCell():AddText(Translator:translate("Template"))
-		headerRow:AddCell():AddText(Translator:translate("Rarity"))
-		headerRow:AddCell():AddText(Translator:translate("Requires Attunement"))
 
-		local function displayResultInTable(templateName)
+		local rarityHeaderCell = headerRow:AddCell()
+		rarityHeaderCell:AddText(Translator:translate("Rarity"))
+		local rarityFilterPopup = tabHeader:AddPopup("RarityFilter")
+		local rarityFilterButton = rarityHeaderCell:AddImageButton("FilterRarity", "filter", { 24, 24 })
+		rarityFilterButton.SameLine = true
+		rarityFilterButton:SetColor("Button", { 1, 1, 1, 0 })
+		rarityFilterButton.OnClick = function()
+			rarityFilterPopup:Open()
+		end
+
+		local attunmentHeaderCell = headerRow:AddCell()
+		attunmentHeaderCell:AddText(Translator:translate("Requires Attunement"))
+		local attumenetFilterButton = attunmentHeaderCell:AddImageButton("FilterAttunement", "filter", { 24, 24 })
+		local attunementFilterPopup = tabHeader:AddPopup("AttunementFilter")
+		attumenetFilterButton.SameLine = true
+		attumenetFilterButton:SetColor("Button", { 1, 1, 1, 0 })
+		attumenetFilterButton.OnClick = function()
+			attunementFilterPopup:Open()
+		end
+
+		local function displayResultInTable(templateName, usingCache)
+			if not usingCache then
+				table.insert(cachedResults, templateName)
+			end
+
 			local itemTemplate = rootsByName[templateName]
+
+			---@type Armor|Weapon
+			local itemStat = Ext.Stats.Get(itemTemplate.Stats)
+
+			if filterSettings.rarity[itemStat.Rarity] == false
+				or (itemStat.Boosts ~= "" and not filterSettings.attunement["Gives Boost(s)"])
+				or (itemStat.PassivesOnEquip ~= "" and not filterSettings.attunement["Gives Passive(s)"])
+				or (itemStat.StatusOnEquip ~= "" and not filterSettings.attunement["Gives Status(es)"])
+			then
+				return
+			end
 
 			local newRow = resultsTable:AddRow()
 			newRow.IDContext = itemTemplate.Id
 			newRow.UserData = itemTemplate
 
-			---@type Armor|Weapon
-			local itemStat = Ext.Stats.Get(itemTemplate.Stats)
-
 			local nameCell = newRow:AddCell()
-			local spawnItem = nameCell:AddImageButton("Spawn_Item", "Spell_Conjuration_MageHand", {32, 32})
+			local spawnItem = nameCell:AddImageButton("Spawn_Item", "Spell_Conjuration_MageHand", { 32, 32 })
 			spawnItem:Tooltip():AddText("\t\t" .. Translator:translate("Preview item - will equip to your controlled character for 60 seconds"))
-			spawnItem.OnClick = function ()
+			spawnItem.OnClick = function()
 				Ext.Net.PostMessageToServer(ModuleUUID .. "SpawnItem", itemTemplate.Id)
 			end
 
@@ -276,8 +320,70 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			end
 		end
 
+		for _, rarity in ipairs(rarityThreshold.Options) do
+			---@type ExtuiSelectable
+			local raritySelect = rarityFilterPopup:AddSelectable(rarity, "DontClosePopups")
+			raritySelect.Selected = filterSettings.rarity[rarity] == nil or filterSettings.rarity[rarity]
+
+			---@param selectable ExtuiSelectable
+			raritySelect.OnClick = function(selectable)
+				filterSettings.rarity[rarityTranslatedTable[rarity]] = selectable.Selected
+
+				rarityFilterButton:SetColor("Button", {1, 1, 1, 0})
+				for _, filteringValue in pairs(filterSettings.rarity) do
+					if not filteringValue then
+						-- green with 50% opacity
+						rarityFilterButton:SetColor("Button", {0.09, 0.55, 0.04, 0.5})
+						break
+					end
+				end
+
+				for _, child in pairs(resultsTable.Children) do
+					---@cast child ExtuiTableRow
+					if not child.Headers then
+						child:Destroy()
+					end
+				end
+
+				for _, result in pairs(cachedResults) do
+					displayResultInTable(result, true)
+				end
+			end
+		end
+
+		for option, value in pairs(filterSettings.attunement) do
+			---@type ExtuiSelectable
+			local attunementSelect = attunementFilterPopup:AddSelectable(Translator:translate(option), "DontClosePopups")
+			attunementSelect.Selected = value
+
+			attunementSelect.OnClick = function()
+				filterSettings.attunement[option] = attunementSelect.Selected
+
+				attumenetFilterButton:SetColor("Button", {1, 1, 1, 0})
+				for _, filteringValue in pairs(filterSettings.attunement) do
+					if not filteringValue then
+						-- green with 50% opacity
+						attumenetFilterButton:SetColor("Button", {0.09, 0.55, 0.04, 0.5})
+						break
+					end
+				end
+
+				for _, child in pairs(resultsTable.Children) do
+					---@cast child ExtuiTableRow
+					if not child.Headers then
+						child:Destroy()
+					end
+				end
+
+				for _, result in pairs(cachedResults) do
+					displayResultInTable(result, true)
+				end
+			end
+		end
+
 		getAllForModCombo.OnChange = function()
 			resultsTable.Visible = true
+			cachedResults = {}
 			for _, child in pairs(resultsTable.Children) do
 				---@cast child ExtuiTableRow
 				if not child.Headers then
@@ -299,6 +405,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			getAllForModCombo.SelectedIndex = -1
 
 			delayTimer = Ext.Timer.WaitFor(150, function()
+				cachedResults = {}
 				resultsTable.Visible = true
 				for _, child in pairs(resultsTable.Children) do
 					---@cast child ExtuiTableRow
