@@ -2,17 +2,20 @@
 
 ---@enum Rarity
 RarityEnum = {
-	Uncommon = 1,
-	Rare = 2,
-	VeryRare = 3,
-	Legendary = 4,
-	[1] = "Uncommon",
-	[2] = "Rare",
-	[3] = "VeryRare",
-	[4] = "Legendary"
+	Common = 1,
+	Uncommon = 2,
+	Rare = 3,
+	VeryRare = 4,
+	Legendary = 5,
+	[1] = "Common",
+	[2] = "Uncommon",
+	[3] = "Rare",
+	[4] = "VeryRare",
+	[5] = "Legendary"
 }
 
 RarityColors = {
+	Common = { 1, 1, 1, 0.6 },
 	Uncommon = { 0.00, 0.66, 0.00, 1.0 },
 	Rare = { 0.20, 0.80, 1.00, 1.0 },
 	VeryRare = { 0.64, 0.27, 0.91, 1.0 },
@@ -21,6 +24,7 @@ RarityColors = {
 
 if Ext.IsClient() then
 	Translator:RegisterTranslation({
+		["Common"] = "h946e5228701f4acca6ecb49d275ee7e0e4e9",
 		["Uncommon"] = "hd547009b37a14dc2b8a5140db50ac5013050",
 		["Rare"] = "h1e84b7f41e9c477f9cbf104b0c01f5170g1d",
 		["VeryRare"] = "hccaa2492212e4dba8dbed27aa5e9f2c6d97g",

@@ -159,4 +159,5 @@
     <content contentuid="hc097c5a5986841928c0db33491afb54e088b" version="1">Gives Passive(s)</content>
     <content contentuid="h3a660e08f39249e5823458db9b5f6393dd1c" version="1">Gives Status(es)</content>
     <!-- END ITEMCONFIG MCM -->
+    <content contentuid="h946e5228701f4acca6ecb49d275ee7e0e4e9" version="1">Common</content>
 </contentList>
