@@ -32,23 +32,25 @@ local slotToCategory = {
 local statFunctions = {
 	---@param stat ItemStat
 	["attunements"] = function(stat, _)
-		-- Friggen lua falsy logic
-		local shouldAttune = ConfigManager.ConfigCopy.items.requiresAttunementOverrides[stat.Name]
-		if shouldAttune == nil then
-			shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
-		end
-
-		if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
-			stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
-			-- Khonsu scripts weren't working no matter what i tried, so this is the next best thing
-			for _, requirement in pairs(stat.Requirements) do
-				if requirement.Requirement == Ext.Enums.RequirementType.Combat then
-					return
-				end
+		if (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity")) then
+			-- Friggen lua falsy logic
+			local shouldAttune = ConfigManager.ConfigCopy.items.requiresAttunementOverrides[stat.Name]
+			if shouldAttune == nil then
+				shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
 			end
-			local reqs = stat.Requirements
-			table.insert(reqs, { Requirement = Ext.Enums.RequirementType.Combat, Param = -1, Not = true })
-			stat.Requirements = reqs
+
+			if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
+				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
+				-- Khonsu scripts weren't working no matter what i tried, so this is the next best thing
+				for _, requirement in pairs(stat.Requirements) do
+					if requirement.Requirement == Ext.Enums.RequirementType.Combat then
+						return
+					end
+				end
+				local reqs = stat.Requirements
+				table.insert(reqs, { Requirement = Ext.Enums.RequirementType.Combat, Param = -1, Not = true })
+				stat.Requirements = reqs
+			end
 		end
 	end,
 	---@param rarity Rarity
