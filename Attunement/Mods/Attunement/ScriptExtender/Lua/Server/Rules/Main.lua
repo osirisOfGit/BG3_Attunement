@@ -1,8 +1,12 @@
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
-	---@type ItemStat
-	local stat = Ext.Stats.Get(Osi.GetStatString(itemUUID))
+		---@type EntityHandle
+		local itemEntity = Ext.Entity.Get(itemUUID)
+
+		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
+		---@type ItemStat
+		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 	if stat then
 		local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
@@ -219,8 +223,12 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 		local charEntity = Ext.Entity.Get(character)
 		local resources = charEntity.ActionResources.Resources
 
+		---@type EntityHandle
+		local itemEntity = Ext.Entity.Get(item)
+
+		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
 		---@type ItemStat
-		local stat = Ext.Stats.Get(Osi.GetStatString(item))
+		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 		if not stat then
 			return
@@ -249,8 +257,12 @@ end)
 
 Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolder, addType)
 	if MCM.Get("enabled") and Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
+		---@type EntityHandle
+		local itemEntity = Ext.Entity.Get(item)
+
+		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
 		---@type ItemStat
-		local stat = Ext.Stats.Get(Osi.GetStatString(item))
+		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) and Osi.HasActiveStatus then
 			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
@@ -277,8 +289,12 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 		local charEntity = Ext.Entity.Get(character)
 		local resources = charEntity.ActionResources.Resources
 
+		---@type EntityHandle
+		local itemEntity = Ext.Entity.Get(item)
+
+		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
 		---@type ItemStat
-		local stat = Ext.Stats.Get(Osi.GetStatString(item))
+		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 		if not stat then
 			return
