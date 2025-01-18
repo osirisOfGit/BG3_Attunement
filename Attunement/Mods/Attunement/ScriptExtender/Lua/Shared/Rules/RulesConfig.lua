@@ -52,6 +52,7 @@ ConfigurationStructure.config.rules = {
 	difficulties = {},
 	---@type {[Rarity] : {[RarityLimitCategories] : RarityGuiRules}}
 	rarityGuiRules = {},
+	---@type RarityGuiRules
 	attunementGuiRules = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
 }
 

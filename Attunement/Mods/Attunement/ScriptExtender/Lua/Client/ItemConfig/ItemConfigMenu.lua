@@ -143,6 +143,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 				selectIndex = #opts
 			end
 			rarityTranslatedTable[Translator:translate(rarity)] = rarity
+			
 			table.insert(opts, Translator:translate(rarity))
 		end
 		rarityThreshold.Options = opts
