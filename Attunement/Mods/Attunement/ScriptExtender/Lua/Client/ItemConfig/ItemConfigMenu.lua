@@ -17,7 +17,6 @@ local function populateTemplateTable()
 			local success, error = pcall(function()
 				local name = template.DisplayName:Get() or templateName
 				if stat
-					and stat.Rarity ~= "Common"
 					and (stat.ModifierList == "Weapon" or stat.ModifierList == "Armor")
 					and (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity"))
 					and not rootsByName[name]
@@ -31,6 +30,7 @@ local function populateTemplateTable()
 							templateNameByModId[stat.ModId] = {}
 						end
 						table.insert(templateNameByModId[stat.ModId], name)
+						table.sort(templateNameByModId[stat.ModId])
 					end
 				end
 			end)
@@ -44,8 +44,6 @@ local function populateTemplateTable()
 
 	table.sort(sortedTemplateNames)
 end
-
-populateTemplateTable()
 
 -- Has to happen in the client since StatsLoaded fires before the server starts up, so... might as well do here
 Ext.Events.StatsLoaded:Subscribe(function()
@@ -120,6 +118,12 @@ local cachedResults = {}
 Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 	--- @param tabHeader ExtuiTreeParent
 	function(tabHeader)
+		if next(rootsByName) then
+			-- got some reports of the imgui stuff being built twice - guess MCM is calling this twice somehow?
+			return
+		end
+
+		populateTemplateTable()
 		tabHeader.TextWrapPos = 0
 
 		local itemConfig = ConfigurationStructure.config.items
@@ -139,6 +143,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 				selectIndex = #opts
 			end
 			rarityTranslatedTable[Translator:translate(rarity)] = rarity
+			
 			table.insert(opts, Translator:translate(rarity))
 		end
 		rarityThreshold.Options = opts
@@ -323,15 +328,16 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 		for _, rarity in ipairs(rarityThreshold.Options) do
 			---@type ExtuiSelectable
 			local raritySelect = rarityFilterPopup:AddSelectable(rarity, "DontClosePopups")
-			raritySelect.Selected = filterSettings.rarity[rarity] == nil or filterSettings.rarity[rarity]
+			filterSettings.rarity[rarity] = filterSettings.rarity[rarity] or (rarity ~= "Common")
+			raritySelect.Selected = filterSettings.rarity[rarity]
 
 			---@param selectable ExtuiSelectable
 			raritySelect.OnClick = function(selectable)
 				filterSettings.rarity[rarityTranslatedTable[rarity]] = selectable.Selected
 
 				rarityFilterButton:SetColor("Button", {1, 1, 1, 0})
-				for _, filteringValue in pairs(filterSettings.rarity) do
-					if not filteringValue then
+				for filterRarity, filteringValue in pairs(filterSettings.rarity) do
+					if (filterRarity == "Common" and filteringValue) or (filterRarity ~= "Common" and not filteringValue) then
 						-- green with 50% opacity
 						rarityFilterButton:SetColor("Button", {0.09, 0.55, 0.04, 0.5})
 						break

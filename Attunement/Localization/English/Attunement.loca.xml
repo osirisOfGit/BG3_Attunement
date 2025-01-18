@@ -111,6 +111,7 @@
     <content contentuid="h838d4b555a7c471f86daa380f5e8f37a0796" version="1">0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)</content>
     <!-- END GENERAL MCM -->
     
+    <content contentuid="h946e5228701f4acca6ecb49d275ee7e0e4e9" version="1">Common</content>
     <content contentuid="hd547009b37a14dc2b8a5140db50ac5013050" version="1">Uncommon</content>
     <content contentuid="h1e84b7f41e9c477f9cbf104b0c01f5170g1d" version="1">Rare</content>
     <content contentuid="hccaa2492212e4dba8dbed27aa5e9f2c6d97g" version="1">VeryRare</content>
