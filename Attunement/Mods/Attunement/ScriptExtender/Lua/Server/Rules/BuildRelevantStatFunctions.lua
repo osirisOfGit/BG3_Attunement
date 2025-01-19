@@ -116,28 +116,30 @@ function BuildRelevantStatFunctions()
 	end
 
 	for _, rarity in ipairs(RarityEnum) do
-		for _, category in ipairs(RarityLimitCategories) do
-			local categoryMaxSlots = RarityLimitCategories[category]
-			if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
-				if enabled then
-					Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
-						rarity,
-						category,
-						difficultyRules.rarityLimits[rarity][category],
-						categoryMaxSlots
-					)
-				end
+		if rarity ~= "Common" then
+			for _, category in ipairs(RarityLimitCategories) do
+				local categoryMaxSlots = RarityLimitCategories[category]
+				if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
+					if enabled then
+						Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
+							rarity,
+							category,
+							difficultyRules.rarityLimits[rarity][category],
+							categoryMaxSlots
+						)
+					end
 
-				actionResources = buildStatString(actionResources,
-					string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
+					actionResources = buildStatString(actionResources,
+						string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
 
-				-- Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
+					-- Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
 
 
-				maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
+					maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
 
-				if enabled then
-					table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+					if enabled then
+						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+					end
 				end
 			end
 		end

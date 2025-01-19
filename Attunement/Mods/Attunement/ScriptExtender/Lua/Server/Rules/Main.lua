@@ -1,12 +1,12 @@
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
-		---@type EntityHandle
-		local itemEntity = Ext.Entity.Get(itemUUID)
+	---@type EntityHandle
+	local itemEntity = Ext.Entity.Get(itemUUID)
 
-		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
-		---@type ItemStat
-		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
+	-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
+	---@type ItemStat
+	local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 	if stat then
 		local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
@@ -186,7 +186,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 											if resourceToModify.Amount <= 0 then
 												Osi.ApplyStatus(player, costName, -1, 1)
 											elseif Osi.HasActiveStatus(player, costName) == 1 then
-												Osi.RemoveStatus(player, costName) 
+												Osi.RemoveStatus(player, costName)
 											end
 										end
 									end
@@ -270,13 +270,13 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 	end
 end)
 
-Ext.Osiris.RegisterListener("Opened", 1, "after", function (item)
+Ext.Osiris.RegisterListener("Opened", 1, "after", function(item)
 	if MCM.Get("enabled") and Osi.IsContainer(item) == 1 then
 		FixAttunementStatusOnEquipables(item)
 	end
 end)
 
-Ext.Osiris.RegisterListener("RequestCanLoot", 2, "after", function (looter, target)
+Ext.Osiris.RegisterListener("RequestCanLoot", 2, "after", function(looter, target)
 	if MCM.Get("enabled") then
 		FixAttunementStatusOnEquipables(target)
 	end

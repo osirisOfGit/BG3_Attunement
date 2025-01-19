@@ -49,7 +49,10 @@ end
 Ext.Events.StatsLoaded:Subscribe(function()
 	if MCM.Get("enabled") then
 		for statName, raritySetting in pairs(ConfigurationStructure.config.items.rarityOverrides) do
-			Ext.Stats.Get(statName).Rarity = raritySetting.New
+			local stat = Ext.Stats.Get(statName)
+			if stat then
+				stat.Rarity = raritySetting.New
+			end
 		end
 
 		Logger:BasicInfo("Successfully applied Rarity overrides")
@@ -130,7 +133,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 
 		tabHeader:AddText(Translator:translate("Reload to see changes on existing items"))
 		--#region Search
-		tabHeader:AddText(Translator:translate("Items with 'Common' rarity are filtered out"))
+		tabHeader:AddText(Translator:translate("Items with 'Common' rarity are filtered out by default"))
 
 		tabHeader:AddText(Translator:translate("Items with Rarity Level"))
 		local rarityThreshold = tabHeader:AddCombo("")
@@ -143,7 +146,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 				selectIndex = #opts
 			end
 			rarityTranslatedTable[Translator:translate(rarity)] = rarity
-			
+
 			table.insert(opts, Translator:translate(rarity))
 		end
 		rarityThreshold.Options = opts
@@ -335,11 +338,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			raritySelect.OnClick = function(selectable)
 				filterSettings.rarity[rarityTranslatedTable[rarity]] = selectable.Selected
 
-				rarityFilterButton:SetColor("Button", {1, 1, 1, 0})
+				rarityFilterButton:SetColor("Button", { 1, 1, 1, 0 })
 				for filterRarity, filteringValue in pairs(filterSettings.rarity) do
 					if (filterRarity == "Common" and filteringValue) or (filterRarity ~= "Common" and not filteringValue) then
 						-- green with 50% opacity
-						rarityFilterButton:SetColor("Button", {0.09, 0.55, 0.04, 0.5})
+						rarityFilterButton:SetColor("Button", { 0.09, 0.55, 0.04, 0.5 })
 						break
 					end
 				end
@@ -365,11 +368,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Item Configuration",
 			attunementSelect.OnClick = function()
 				filterSettings.attunement[option] = attunementSelect.Selected
 
-				attumenetFilterButton:SetColor("Button", {1, 1, 1, 0})
+				attumenetFilterButton:SetColor("Button", { 1, 1, 1, 0 })
 				for _, filteringValue in pairs(filterSettings.attunement) do
 					if not filteringValue then
 						-- green with 50% opacity
-						attumenetFilterButton:SetColor("Button", {0.09, 0.55, 0.04, 0.5})
+						attumenetFilterButton:SetColor("Button", { 0.09, 0.55, 0.04, 0.5 })
 						break
 					end
 				end

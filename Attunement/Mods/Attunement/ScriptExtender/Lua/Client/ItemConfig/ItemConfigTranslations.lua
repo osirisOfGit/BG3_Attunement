@@ -9,7 +9,7 @@ Translator:RegisterTranslation({
 	["From mod '%s' by '%s'"] = "h8aed0a59847a4519b6b34b82ad249a28gggf",
 	["Originally from mod '%s' by '%s'"] = "h1ac6a2eaa3a640ee9fea0800bdd849cdb4dc",
 	["Reload to see changes on existing items"] = "h602a4b35d1bf45d8862a99fde53c212fg036",
-	["Items with 'Common' rarity are filtered out"] = "h1cdbe564381a49a48fb9d48d5dae1881fb4d",
+	["Items with 'Common' rarity are filtered out by default"] = "h1cdbe564381a49a48fb9d48d5dae1881fb4d",
 	["Items with Rarity Level"] = "hf54520331be04d4694a634db217a66a61cbf",
 	["or above can default to requiring Attunement"] = "h66a4440030ad4fc18c82ab0c599712e0749b",
 	["List all items by mod - will be cleared if above search is used"] = "hb6f05b79f45d46ebb3a556857600f69f80bg",
