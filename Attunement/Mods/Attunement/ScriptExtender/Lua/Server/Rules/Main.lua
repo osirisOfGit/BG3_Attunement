@@ -92,7 +92,7 @@ end
 
 ---@param playerEntity EntityHandle
 local function ProcessEquippedItemsOnChar(playerEntity)
-	Logger:BasicInfo("Updating equipped + equipable items for %s", playerEntity.DisplayName and playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid)
+	Logger:BasicDebug("Updating equipped + equipable items for %s", playerEntity.DisplayName and playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid)
 	local player = playerEntity.Uuid.EntityUuid
 	local resources = playerEntity.ActionResources.Resources
 
@@ -259,9 +259,14 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 			local costName = string.match(cost, "^[^:]+")
 			if string.find(costName, "Attunement") then
 				if costName == "Attunement" then
-					if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1 then
+					if Osi.HasActiveStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS") == 1
+					then
 						Osi.ApplyStatus(item, "ATTUNEMENT_IS_ATTUNED_STATUS", -1, 1)
-						Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+						if MCM.Get("cast_animation")
+							and (Osi.IsInCombat(character) == 0 or MCM.Get("cast_animation_combat"))
+						then
+							Osi.UseSpell(character, "ATTUNE_EQUIPMENT", character)
+						end
 					else
 						goto continue
 					end

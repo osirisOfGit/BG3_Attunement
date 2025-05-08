@@ -160,4 +160,6 @@
     <content contentuid="hc097c5a5986841928c0db33491afb54e088b" version="1">Gives Passive(s)</content>
     <content contentuid="h3a660e08f39249e5823458db9b5f6393dd1c" version="1">Gives Status(es)</content>
     <!-- END ITEMCONFIG MCM -->
+    <content contentuid="h599edf2bb9cd4fc1b4dbf3650b4f9d21a402" version="1">Trigger Cast Animation When Equipping Attunable Item</content>
+    <content contentuid="h43764e678ec9407593f7e95a96c489d5277e" version="1">Trigger Cast Animation When Equipping Attunable Item In Combat</content>
 </contentList>

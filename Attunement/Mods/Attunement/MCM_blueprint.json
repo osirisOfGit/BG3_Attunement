@@ -42,6 +42,35 @@
 								"Min": 0,
 								"Max": 5
 							}
+						},
+						{
+							"Id": "cast_animation",
+							"Name": "Trigger Cast Animation When Equipping Attunable Item",
+							"Description": "^",
+							"Handles": {
+								"NameHandle": "h599edf2bb9cd4fc1b4dbf3650b4f9d21a402"
+							},
+							"Type": "checkbox",
+							"Default": true
+						},
+						{
+							"Id": "cast_animation_combat",
+							"Name": "Trigger Cast Animation When Equipping Attunable Item In Combat",
+							"Description": "^",
+							"Handles": {
+								"NameHandle": "h43764e678ec9407593f7e95a96c489d5277e"
+							},
+							"Type": "checkbox",
+							"Default": true,
+							"VisibleIf": {
+								"Conditions": [
+									{
+										"SettingId": "cast_animation",
+										"ExpectedValue": true,
+										"Operator": "=="
+									}
+								]
+							}
 						}
 					]
 				}
