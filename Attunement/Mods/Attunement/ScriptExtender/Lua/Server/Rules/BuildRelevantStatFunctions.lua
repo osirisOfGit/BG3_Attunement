@@ -102,13 +102,11 @@ function BuildRelevantStatFunctions()
 	if difficultyRules.totalAttunementLimit < 13
 		-- If any of the rarities take up more than 1 attunement slot, we need to show the resource as it's not just 1:1
 		or TableUtils:ListContains(difficultyRules.rarityLimits, function(value)
-			return TableUtils:ListContains(value, function(value)
-				return value > 1
-			end)
+			return value["Attunement Slots"] > 1
 		end)
 	then
 		if enabled then
-			Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
+			Logger:BasicInfo("Attunement limit is set to %s, which is less than 13 (max number of equipable slots), so enabling Attunement resources",
 				difficultyRules.totalAttunementLimit)
 		end
 
