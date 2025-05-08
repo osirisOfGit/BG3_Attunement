@@ -84,6 +84,8 @@ local function GetDifficulty()
 	return ConfigManager.ConfigCopy.rules.difficulties[difficulty] or ConfigManager.ConfigCopy.rules.difficulties["Base"]
 end
 
+---@return table
+---@return table?
 function BuildRelevantStatFunctions()
 	local difficultyRules = GetDifficulty()
 
@@ -210,5 +212,5 @@ function BuildRelevantStatFunctions()
 		end
 	end
 
-	return functionsToReturn
+	return functionsToReturn, configState.maxAmounts
 end

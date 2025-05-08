@@ -1,3 +1,6 @@
+---@type {[string]: number}
+local maxAmounts = {}
+
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
@@ -87,9 +90,89 @@ local function getCachedResource(costName)
 	return cachedResourceID
 end
 
+---@param playerEntity EntityHandle
+local function ProcessEquippedItemsOnChar(playerEntity)
+	Logger:BasicInfo("Updating equipped + equipable items for %s", playerEntity.DisplayName and playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid)
+	local player = playerEntity.Uuid.EntityUuid
+	local resources = playerEntity.ActionResources.Resources
+
+	for resourceName, maxAmount in pairs(maxAmounts) do
+		local resource = resources[getCachedResource(resourceName)][1]
+		resource.MaxAmount = maxAmount
+		resource.Amount = maxAmount
+	end
+
+	local toUnequip = {}
+
+	local sentNotification = false
+	for itemSlot, _ in pairs(Ext.Enums.ItemSlot) do
+		itemSlot = tostring(itemSlot)
+		-- Getting this aligned with Osi.EQUIPMENTSLOTNAME, because, what the heck Larian (╯°□°）╯︵ ┻━┻
+		if itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeMainHand] then
+			itemSlot = "Melee Main Weapon"
+		elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeOffHand] then
+			itemSlot = "Melee Offhand Weapon"
+		elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedMainHand] then
+			itemSlot = "Ranged Main Weapon"
+		elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedOffHand] then
+			itemSlot = "Ranged Offhand Weapon"
+		end
+
+		local equippedItem = Osi.GetEquippedItem(player, itemSlot)
+		if equippedItem then
+			local stat = FixAttunementStatus(equippedItem)
+
+			if stat then
+				local unequippedItem = false
+				for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
+					local costName = string.match(cost, "^[^:]+")
+
+					if string.match(costName, "^.*Attunement$") then
+						local resourceToModify = resources[getCachedResource(costName)][1]
+						if resourceToModify.Amount <= 0 then
+							resourceToModify.Amount = resourceToModify.Amount - 1
+
+							if not unequippedItem then
+								table.insert(toUnequip, equippedItem)
+								unequippedItem = true
+							end
+
+							if not sentNotification then
+								sentNotification = true
+								Osi.ShowNotification(player,
+									(playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid) ..
+									" had items unequipped due to exceeding Attunement/Rarity Equip Limits")
+							end
+						else
+							resourceToModify.Amount = resourceToModify.Amount - 1
+							resourceToModify.MaxAmount = resourceToModify.Amount
+
+							if resourceToModify.Amount <= 0 then
+								Osi.ApplyStatus(player, costName, -1, 1)
+							elseif Osi.HasActiveStatus(player, costName) == 1 then
+								Osi.RemoveStatus(player, costName)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	playerEntity:Replicate("ActionResources")
+	FixAttunementStatusOnEquipables(player)
+	for _, item in pairs(toUnequip) do
+		Osi.Unequip(player, item)
+	end
+end
+
 local playerSubs = {}
-Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
-	local functionsToRun = BuildRelevantStatFunctions()
+local levelReadySub
+levelReadySub = Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
+	local functionsToRun
+	functionsToRun, maxAmounts = BuildRelevantStatFunctions()
+	maxAmounts = maxAmounts or {}
+
 	if #functionsToRun > 0 then
 		for _, template in pairs(Ext.Template.GetAllRootTemplates()) do
 			if template.TemplateType == "item" then
@@ -135,71 +218,7 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 					playerSubs[player] = ""
 					timerRef = nil
 
-					Logger:BasicInfo("Updating equipped + equipable items for %s", player)
-					local resources = playerEntity.ActionResources.Resources
-
-					local toUnequip = {}
-
-					local sentNotification = false
-					for itemSlot, _ in pairs(Ext.Enums.ItemSlot) do
-						itemSlot = tostring(itemSlot)
-						-- Getting this aligned with Osi.EQUIPMENTSLOTNAME, because, what the heck Larian (╯°□°）╯︵ ┻━┻
-						if itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeMainHand] then
-							itemSlot = "Melee Main Weapon"
-						elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.MeleeOffHand] then
-							itemSlot = "Melee Offhand Weapon"
-						elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedMainHand] then
-							itemSlot = "Ranged Main Weapon"
-						elseif itemSlot == Ext.Enums.StatsItemSlot[Ext.Enums.StatsItemSlot.RangedOffHand] then
-							itemSlot = "Ranged Offhand Weapon"
-						end
-
-						local equippedItem = Osi.GetEquippedItem(player, itemSlot)
-						if equippedItem then
-							local stat = FixAttunementStatus(equippedItem)
-
-							if stat then
-								local unequippedItem = false
-								for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
-									local costName = string.match(cost, "^[^:]+")
-
-									if string.match(costName, "^.*Attunement$") then
-										local resourceToModify = resources[getCachedResource(costName)][1]
-										if resourceToModify.Amount <= 0 then
-											resourceToModify.Amount = resourceToModify.Amount - 1
-
-											if not unequippedItem then
-												table.insert(toUnequip, equippedItem)
-												unequippedItem = true
-											end
-
-											if not sentNotification then
-												sentNotification = true
-												Osi.ShowNotification(player,
-													(playerEntity.DisplayName.Name:Get() or playerEntity.Uuid.EntityUuid) ..
-													" had items unequipped due to exceeding Attunement/Rarity Equip Limits")
-											end
-										else
-											resourceToModify.Amount = resourceToModify.Amount - 1
-											resourceToModify.MaxAmount = resourceToModify.Amount
-
-											if resourceToModify.Amount <= 0 then
-												Osi.ApplyStatus(player, costName, -1, 1)
-											elseif Osi.HasActiveStatus(player, costName) == 1 then
-												Osi.RemoveStatus(player, costName)
-											end
-										end
-									end
-								end
-							end
-						end
-					end
-
-					playerEntity:Replicate("ActionResources")
-					FixAttunementStatusOnEquipables(player)
-					for _, item in pairs(toUnequip) do
-						Osi.Unequip(player, item)
-					end
+					ProcessEquippedItemsOnChar(playerEntity)
 				end)
 			end, playerEntity)
 
@@ -215,10 +234,12 @@ Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName
 			end)
 		end
 	end
+	Ext.Osiris.UnregisterListener(levelReadySub)
 end)
 
 Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 	if MCM.Get("enabled") then
+		Logger:BasicDebug("%s equipped %s", character, item)
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
 		local resources = charEntity.ActionResources.Resources
@@ -256,16 +277,22 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 end)
 
 Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolder, addType)
-	if MCM.Get("enabled") and Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
-		---@type EntityHandle
-		local itemEntity = Ext.Entity.Get(item)
+	if MCM.Get("enabled") then
+		Logger:BasicDebug("%s was added to %s with addType %s", item, inventoryHolder, addType)
 
-		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
-		---@type ItemStat
-		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
+		if Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
+			---@type EntityHandle
+			local itemEntity = Ext.Entity.Get(item)
 
-		if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) and Osi.HasActiveStatus then
-			Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
+			---@type ItemStat
+			local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
+
+			if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) and Osi.HasActiveStatus then
+				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
+			end
+		elseif Osi.IsContainer(item) == 1 then
+			FixAttunementStatusOnEquipables(item)
 		end
 	end
 end)
@@ -284,38 +311,17 @@ end)
 
 Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 	if MCM.Get("enabled") then
-		-- Using ReplenishType `Never` prevents restoring resource through Stats and Osiris, so hacking it
+		Logger:BasicDebug("%s unequipped %s", character, item)
+
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
-		local resources = charEntity.ActionResources.Resources
 
-		---@type EntityHandle
-		local itemEntity = Ext.Entity.Get(item)
-
-		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
-		---@type ItemStat
-		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
-
-		if not stat then
-			return
-		end
-
-		for cost in string.gmatch(stat.UseCosts, "([^;]+)") do
-			local costName = string.match(cost, "^[^:]+")
-
-			if string.match(costName, "^.*Attunement$") then
-				if costName == "Attunement" then
-					Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
-				end
-
-				local resource = resources[getCachedResource(costName)][1]
-				resource.Amount = resource.Amount + 1
-				resource.MaxAmount = resource.Amount
-				if resource.Amount > 0 and Osi.HasActiveStatus(character, costName) == 1 then
-					Osi.RemoveStatus(character, costName)
-				end
-			end
-		end
-		charEntity:Replicate("ActionResources")
+		ProcessEquippedItemsOnChar(charEntity)
 	end
+end)
+
+Ext.Osiris.RegisterListener("CharacterDisarmed", 3, "after", function(character, item, slotName)
+	Logger:BasicDebug("%s was disarmed of %s", character, item)
+
+	ProcessEquippedItemsOnChar(Ext.Entity.Get(character))
 end)
