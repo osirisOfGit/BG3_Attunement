@@ -1,6 +1,9 @@
 ---@type {[string]: number}
 local maxAmounts = {}
 
+---@type AttunementRules
+local difficultyRules
+
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
@@ -12,7 +15,7 @@ local function FixAttunementStatus(itemUUID)
 	local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 	if stat then
-		local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))
+		local requiresAttunement = stat.UseCosts and (string.find(stat.UseCosts, ";Attunement:") or string.find(stat.UseCosts, "^Attunement:"))
 
 		if requiresAttunement then
 			if Osi.IsEquipped(itemUUID) == 1 then
@@ -129,8 +132,9 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 
 					if string.match(costName, "^.*Attunement$") then
 						local resourceToModify = resources[getCachedResource(costName)][1]
+						local resourceCost = difficultyRules.rarityLimits[stat.Rarity][costName] or difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"]
 						if resourceToModify.Amount <= 0 then
-							resourceToModify.Amount = resourceToModify.Amount - 1
+							resourceToModify.Amount = resourceToModify.Amount - resourceCost
 
 							if not unequippedItem then
 								table.insert(toUnequip, equippedItem)
@@ -144,7 +148,7 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 									" had items unequipped due to exceeding Attunement/Rarity Equip Limits")
 							end
 						else
-							resourceToModify.Amount = resourceToModify.Amount - 1
+							resourceToModify.Amount = resourceToModify.Amount - resourceCost
 							resourceToModify.MaxAmount = resourceToModify.Amount
 
 							if resourceToModify.Amount <= 0 then
@@ -170,7 +174,7 @@ local playerSubs = {}
 local levelReadySub
 levelReadySub = Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
 	local functionsToRun
-	functionsToRun, maxAmounts = BuildRelevantStatFunctions()
+	functionsToRun, maxAmounts, difficultyRules = BuildRelevantStatFunctions()
 	maxAmounts = maxAmounts or {}
 
 	if #functionsToRun > 0 then
@@ -293,7 +297,7 @@ Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolde
 			---@type ItemStat
 			local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
-			if stat and (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1")) and Osi.HasActiveStatus then
+			if stat and (string.find(stat.UseCosts, ";Attunement:") or string.find(stat.UseCosts, "^Attunement:")) and Osi.HasActiveStatus then
 				Osi.ApplyStatus(item, "ATTUNEMENT_REQUIRES_ATTUNEMENT_STATUS", -1, 1)
 			end
 		elseif Osi.IsContainer(item) == 1 then

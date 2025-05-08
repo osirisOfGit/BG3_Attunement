@@ -20,7 +20,9 @@ Ext.Events.StatsLoaded:Subscribe(function(e)
 		for rarity, rarityEntry in pairs(ConfigurationStructure.config.rules.rarityGuiRules) do
 			if rarity ~= "Common" then
 				for category, categoryEntry in pairs(rarityEntry) do
-					transformedRarityGuiRules[rarity .. category .. "LimitAttunement"] = categoryEntry
+					if category ~= "Attunement Slots" then
+						transformedRarityGuiRules[rarity .. category .. "LimitAttunement"] = categoryEntry
+					end
 				end
 			end
 		end
@@ -130,7 +132,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 
 			section:AddNewLine()
 			section:AddText(Translator:translate("Equipped Limits By Rarity (Accessories includes instruments, for compatibility with trinket mods)"))
-			local slotTable = section:AddTable("RarityBySlot", 5)
+			local slotTable = section:AddTable("RarityBySlot", 6)
 			slotTable.SizingStretchSame = true
 			slotTable.BordersInnerH = true
 			slotTable:SetStyle("ChildBorderSize", 20)
@@ -142,6 +144,8 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			headerRow:AddCell():AddText(Translator:translate("Weapons"))
 			headerRow:AddCell():AddText(Translator:translate("Armor"))
 			headerRow:AddCell():AddText(Translator:translate("Accessories"))
+			headerRow:AddCell():AddText(Translator:translate("# of Attunement Slots Consumed") .. " (?)"):Tooltip():AddText(
+			"Every item equipped will use the specified amount of Attunement Slots when equipped")
 
 			for _, rarity in ipairs(RarityEnum) do
 				if rarity ~= "Common" then
@@ -150,6 +154,11 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 						difficultyConfig.rarityLimits[rarity] = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot)
 						rarityLimitConfig = difficultyConfig.rarityLimits[rarity]
 					end
+
+					if not rarityLimitConfig["Attunement Slots"] then
+						rarityLimitConfig["Attunement Slots"] = 1
+					end
+
 					if not attuneConfig.rarityGuiRules[rarity] then
 						attuneConfig.rarityGuiRules[rarity] = {}
 					end
@@ -162,8 +171,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 						rarityColor[4] = 0.5 -- turn down the alpha, it bright AF
 
 						local sliderCell = slotRow:AddCell()
-						local slider = sliderCell:AddSliderInt("", rarityLimitConfig[category], 1,
-							ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot[category])
+						local slider = sliderCell:AddSliderInt("", rarityLimitConfig[category], 1, ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot[category])
 						slider:SetColor("SliderGrab", rarityColor)
 						slider.OnChange = function()
 							rarityLimitConfig[category] = slider.Value[1]
@@ -174,27 +182,29 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 						end
 						local guiRules = attuneConfig.rarityGuiRules[rarity][category]
 
-						local resourceButton = sliderCell:AddButton(Translator:translate("RES"))
-						resourceButton:SetStyle("FramePadding", 10, 0)
-						setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
-
-						local statusOnLimit = sliderCell:AddButton(Translator:translate("STAT"))
-						statusOnLimit:SetStyle("FramePadding", 7, 0)
-						statusOnLimit.SameLine = true
-						setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
-
-						resourceButton.OnClick = function()
-							guiRules["resource"] = not guiRules["resource"]
+						if category ~= "Attunement Slots" then
+							local resourceButton = sliderCell:AddButton(Translator:translate("RES"))
+							resourceButton:SetStyle("FramePadding", 10, 0)
 							setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
-							Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
-						end
-						statusOnLimit.OnClick = function()
-							guiRules["statusOnLimit"] = not guiRules["statusOnLimit"]
+
+							local statusOnLimit = sliderCell:AddButton(Translator:translate("STAT"))
+							statusOnLimit:SetStyle("FramePadding", 7, 0)
+							statusOnLimit.SameLine = true
 							setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
-							---@type StatusData
-							local stat = Ext.Stats.Get(rarity .. category .. "LimitAttunement")
-							stat.StatusPropertyFlags = guiRules["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
-							stat:Sync()
+
+							resourceButton.OnClick = function()
+								guiRules["resource"] = not guiRules["resource"]
+								setEnabledButtonColor(resourceButton, guiRules["resource"], rarityColor)
+								Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
+							end
+							statusOnLimit.OnClick = function()
+								guiRules["statusOnLimit"] = not guiRules["statusOnLimit"]
+								setEnabledButtonColor(statusOnLimit, guiRules["statusOnLimit"], rarityColor)
+								---@type StatusData
+								local stat = Ext.Stats.Get(rarity .. category .. "LimitAttunement")
+								stat.StatusPropertyFlags = guiRules["statusOnLimit"] and {} or { "DisableOverhead", "DisableCombatlog", "DisablePortraitIndicator" }
+								stat:Sync()
+							end
 						end
 					end
 				end

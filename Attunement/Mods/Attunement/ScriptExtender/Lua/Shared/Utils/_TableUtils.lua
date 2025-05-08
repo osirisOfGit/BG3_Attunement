@@ -65,3 +65,22 @@ function TableUtils:CompareLists(first, second)
 
 	return true
 end
+
+---@generic K, V
+---@param list table<K, V>
+---@param str string|fun(value: V): boolean
+---@return boolean, V?
+function TableUtils:ListContains(list, str)
+	for i, value in pairs(list) do
+		if type(str) == "string" then
+			if value == str then
+				return true, i
+			end
+		elseif type(str) == "function" then
+			if str(value) then
+				return true, i
+			end
+		end
+	end
+	return false
+end
