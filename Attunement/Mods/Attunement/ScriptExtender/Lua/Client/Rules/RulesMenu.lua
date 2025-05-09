@@ -100,8 +100,19 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			local section = difficultyGroup:AddCollapsingHeader(Translator:translate(diffId))
 
 			section:AddText(Translator:translate("Total Number Of Attuned Items Allowed"))
-			local totalAttuneLimitSlider = section:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1,
-				ConfigurationStructure.DynamicClassDefinitions.rules.totalAttunementLimit)
+			local sliderGroup = section:AddGroup("SliderGroup")
+			local totalAttuneLimitSlider = sliderGroup:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1,
+				ConfigurationStructure.config.rules.uncapAttunementLimit and 99 or ConfigurationStructure.DynamicClassDefinitions.rules.totalAttunementLimit)
+			local uncapCheckbox = section:AddCheckbox("Uncap Attunement Limit?", ConfigurationStructure.config.rules.uncapAttunementLimit or false)
+			uncapCheckbox.SameLine = true
+
+			uncapCheckbox.OnChange = function ()
+				ConfigurationStructure.config.rules.uncapAttunementLimit = uncapCheckbox.Checked
+				totalAttuneLimitSlider:Destroy()
+				totalAttuneLimitSlider = sliderGroup:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1,
+				ConfigurationStructure.config.rules.uncapAttunementLimit and 99 or ConfigurationStructure.DynamicClassDefinitions.rules.totalAttunementLimit)
+			end
+
 			local attunementGuiRules = ConfigurationStructure.config.rules.attunementGuiRules
 			local attunementResourceButton = section:AddButton(Translator:translate("RES"))
 			attunementResourceButton:SetStyle("FramePadding", 15, 0)

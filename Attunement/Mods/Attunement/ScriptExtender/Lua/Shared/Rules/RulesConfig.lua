@@ -56,7 +56,8 @@ ConfigurationStructure.config.rules = {
 	---@type {[Rarity] : {[RarityLimitCategories] : RarityGuiRules}}
 	rarityGuiRules = {},
 	---@type RarityGuiRules
-	attunementGuiRules = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay)
+	attunementGuiRules = TableUtils:DeeplyCopyTable(ConfigurationStructure.DynamicClassDefinitions.rules.rarityGuiDisplay),
+	uncapAttunementLimit = false
 }
 
 ConfigurationStructure.config.rules.attunementGuiRules["resource"] = true

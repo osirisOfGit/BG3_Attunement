@@ -132,7 +132,8 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 
 					if string.match(costName, "^.*Attunement$") then
 						local resourceToModify = resources[getCachedResource(costName)][1]
-						local resourceCost = difficultyRules.rarityLimits[stat.Rarity][costName] or difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"]
+						local resourceCost = difficultyRules.rarityLimits[stat.Rarity][costName] or difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"] or 1
+						
 						if resourceToModify.Amount <= 0 then
 							resourceToModify.Amount = resourceToModify.Amount - resourceCost
 

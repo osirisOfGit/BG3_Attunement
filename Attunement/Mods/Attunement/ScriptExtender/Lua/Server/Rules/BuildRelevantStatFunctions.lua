@@ -43,7 +43,7 @@ local statFunctions = {
 			end
 
 			if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:") or string.find(stat.UseCosts, "^Attunement:"))) then
-				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:" .. difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"])
+				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:" .. (difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"] or "1"))
 			end
 		end
 	end,
@@ -99,19 +99,19 @@ function BuildRelevantStatFunctions()
 
 	local maxAmounts = {}
 	local functionsToReturn = {}
-	if difficultyRules.totalAttunementLimit < 13
+	if difficultyRules.totalAttunementLimit ~= 13
 		-- If any of the rarities take up more than 1 attunement slot, we need to show the resource as it's not just 1:1
 		or TableUtils:ListContains(difficultyRules.rarityLimits, function(value)
-			return value["Attunement Slots"] > 1
+			return (value["Attunement Slots"] or 1) > 1
 		end)
 	then
 		if enabled then
-			Logger:BasicInfo("Attunement limit is set to %s, which is less than 13 (max number of equipable slots), so enabling Attunement resources",
+			Logger:BasicInfo("Attunement limit is set to %s, so enabling Attunement resources",
 				difficultyRules.totalAttunementLimit)
 		end
 
 		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", enabled and difficultyRules.totalAttunementLimit or 0))
-		maxAmounts["Attunement"] = enabled and difficultyRules.totalAttunementLimit or 0
+		maxAmounts["Attunement"] = enabled and tonumber(difficultyRules.totalAttunementLimit) or 0
 		if enabled then
 			table.insert(functionsToReturn, statFunctions["attunements"])
 		end
@@ -212,5 +212,5 @@ function BuildRelevantStatFunctions()
 		end
 	end
 
-	return functionsToReturn, configState.maxAmounts, difficultyRules
+	return functionsToReturn, maxAmounts, difficultyRules
 end
