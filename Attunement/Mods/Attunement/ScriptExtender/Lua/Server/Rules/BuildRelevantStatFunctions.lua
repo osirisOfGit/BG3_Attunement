@@ -1,3 +1,6 @@
+---@type AttunementRules
+local difficultyRules
+
 Ext.Vars.RegisterModVariable(ModuleUUID, "Config_State_Tracker", {
 	Server = true,
 	Client = false
@@ -39,17 +42,8 @@ local statFunctions = {
 				shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
 			end
 
-			if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:1") or string.find(stat.UseCosts, "^Attunement:1"))) then
-				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:1")
-				-- Khonsu scripts weren't working no matter what i tried, so this is the next best thing
-				for _, requirement in pairs(stat.Requirements) do
-					if requirement.Requirement == Ext.Enums.RequirementType.Combat then
-						return
-					end
-				end
-				local reqs = stat.Requirements
-				table.insert(reqs, { Requirement = Ext.Enums.RequirementType.Combat, Param = -1, Not = true })
-				stat.Requirements = reqs
+			if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:") or string.find(stat.UseCosts, "^Attunement:"))) then
+				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:" .. difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"])
 			end
 		end
 	end,
@@ -84,8 +78,11 @@ local function GetDifficulty()
 	return ConfigManager.ConfigCopy.rules.difficulties[difficulty] or ConfigManager.ConfigCopy.rules.difficulties["Base"]
 end
 
+---@return function[] StatFunctions to run
+---@return {[string]: number}? MaxAmounts per resource
+---@return AttunementRules?
 function BuildRelevantStatFunctions()
-	local difficultyRules = GetDifficulty()
+	difficultyRules = GetDifficulty()
 
 	if not difficultyRules then
 		Logger:BasicWarning("Difficulty rules haven't been configured yet, meaning this is your first time loading. Reload to pick up the functionality!")
@@ -102,9 +99,14 @@ function BuildRelevantStatFunctions()
 
 	local maxAmounts = {}
 	local functionsToReturn = {}
-	if difficultyRules.totalAttunementLimit < 13 then
+	if difficultyRules.totalAttunementLimit < 13
+		-- If any of the rarities take up more than 1 attunement slot, we need to show the resource as it's not just 1:1
+		or TableUtils:ListContains(difficultyRules.rarityLimits, function(value)
+			return value["Attunement Slots"] > 1
+		end)
+	then
 		if enabled then
-			Logger:BasicInfo("Attunement limit is set to %s, which is less than 12 (max number of equipable slots), so enabling Attunement resources",
+			Logger:BasicInfo("Attunement limit is set to %s, which is less than 13 (max number of equipable slots), so enabling Attunement resources",
 				difficultyRules.totalAttunementLimit)
 		end
 
@@ -118,27 +120,27 @@ function BuildRelevantStatFunctions()
 	for _, rarity in ipairs(RarityEnum) do
 		if rarity ~= "Common" then
 			for _, category in ipairs(RarityLimitCategories) do
-				local categoryMaxSlots = RarityLimitCategories[category]
-				if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
-					if enabled then
-						Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
-							rarity,
-							category,
-							difficultyRules.rarityLimits[rarity][category],
-							categoryMaxSlots
-						)
-					end
+				if category ~= "Attunement Slots" then
+					local categoryMaxSlots = RarityLimitCategories[category]
+					if difficultyRules.rarityLimits[rarity][category] < categoryMaxSlots then
+						if enabled then
+							Logger:BasicInfo("Rarity %s's %s limit is set to %s, which is less than the max of %s, so enabling the associated resource",
+								rarity,
+								category,
+								difficultyRules.rarityLimits[rarity][category],
+								categoryMaxSlots
+							)
+						end
 
-					actionResources = buildStatString(actionResources,
-						string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
-
-					-- Ext.StaticData.Get(cachedResources[rarity .. category .. "LimitAttunement"], "ActionResource").ShowOnActionResourcePanel = guiRules["resource"]
+						actionResources = buildStatString(actionResources,
+							string.format("ActionResource(%s%sLimitAttunement,%s,0)", rarity, category, enabled and difficultyRules.rarityLimits[rarity][category] or 0))
 
 
-					maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
+						maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
 
-					if enabled then
-						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+						if enabled then
+							table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
+						end
 					end
 				end
 			end
@@ -210,5 +212,5 @@ function BuildRelevantStatFunctions()
 		end
 	end
 
-	return functionsToReturn
+	return functionsToReturn, configState.maxAmounts, difficultyRules
 end

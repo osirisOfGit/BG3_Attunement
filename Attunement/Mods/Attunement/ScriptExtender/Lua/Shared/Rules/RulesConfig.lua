@@ -11,10 +11,12 @@ RarityLimitCategories = {
 	[2] = "Weapons",
 	[3] = "Armor",
 	[4] = "Accessories",
+	[5] = "Attunement Slots",
 	Total = 13,
 	Weapons = 4,
 	Armor = 5,
 	Accessories = 4,
+	["Attunement Slots"] = 5
 }
 
 --- @class LimitRarityBySlotGroup
@@ -23,6 +25,7 @@ ConfigurationStructure.DynamicClassDefinitions.rarityLimitPerSlot = {
 	Weapons = 4,
 	Armor = 5,
 	Accessories = 4,
+	["Attunement Slots"] = 13
 }
 
 --- @type {[Rarity] : {[RarityLimitCategories] : number }}
