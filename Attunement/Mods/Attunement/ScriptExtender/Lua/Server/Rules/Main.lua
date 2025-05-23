@@ -100,9 +100,11 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 	local resources = playerEntity.ActionResources.Resources
 
 	for resourceName, maxAmount in pairs(maxAmounts) do
-		local resource = resources[getCachedResource(resourceName)][1]
-		resource.MaxAmount = maxAmount
-		resource.Amount = maxAmount
+		if getCachedResource(resourceName) then
+			local resource = resources[getCachedResource(resourceName)][1]
+			resource.MaxAmount = maxAmount
+			resource.Amount = maxAmount
+		end
 	end
 
 	local toUnequip = {}
@@ -133,7 +135,7 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 					if string.match(costName, "^.*Attunement$") then
 						local resourceToModify = resources[getCachedResource(costName)][1]
 						local resourceCost = difficultyRules.rarityLimits[stat.Rarity][costName] or difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"] or 1
-						
+
 						if resourceToModify.Amount <= 0 then
 							resourceToModify.Amount = resourceToModify.Amount - resourceCost
 
@@ -276,9 +278,11 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 						goto continue
 					end
 				end
-				local resource = resources[getCachedResource(costName)][1]
-				if resource.Amount == 0 then
-					Osi.ApplyStatus(character, costName, -1, 1)
+				if resources[getCachedResource(costName)] then
+					local resource = resources[getCachedResource(costName)][1]
+					if resource.Amount == 0 then
+						Osi.ApplyStatus(character, costName, -1, 1)
+					end
 				end
 				::continue::
 			end
