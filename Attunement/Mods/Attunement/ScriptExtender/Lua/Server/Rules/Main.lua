@@ -100,7 +100,7 @@ local function ProcessEquippedItemsOnChar(playerEntity)
 	local resources = playerEntity.ActionResources.Resources
 
 	for resourceName, maxAmount in pairs(maxAmounts) do
-		if getCachedResource(resourceName) then
+		if resources[getCachedResource(resourceName)] then
 			local resource = resources[getCachedResource(resourceName)][1]
 			resource.MaxAmount = maxAmount
 			resource.Amount = maxAmount
@@ -176,6 +176,8 @@ end
 local playerSubs = {}
 local levelReadySub
 levelReadySub = Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", function(levelName, isEditorMode)
+	if levelName == "SYS_CC_I" then return end
+
 	local functionsToRun
 	functionsToRun, maxAmounts, difficultyRules = BuildRelevantStatFunctions()
 	maxAmounts = maxAmounts or {}
@@ -245,7 +247,7 @@ levelReadySub = Ext.Osiris.RegisterListener("LevelGameplayReady", 2, "after", fu
 end)
 
 Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
-	if MCM.Get("enabled") then
+	if not next(playerSubs) and MCM.Get("enabled") and Osi.Exists(item) == 1 then
 		Logger:BasicDebug("%s equipped %s", character, item)
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
@@ -254,11 +256,16 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 		---@type EntityHandle
 		local itemEntity = Ext.Entity.Get(item)
 
+		if not itemEntity or itemEntity.Vars.TheArmory_Vanity_Item_CurrentlyMogging then
+			return
+		end
+
 		-- Transmogging changes the stat on the item, so we can't find the stat via the template, since that will give us the original stat
 		---@type ItemStat
 		local stat = Ext.Stats.Get(itemEntity.Data.StatsId)
 
 		if not stat then
+			ProcessEquippedItemsOnChar(charEntity)
 			return
 		end
 
@@ -291,7 +298,7 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 end)
 
 Ext.Osiris.RegisterListener("AddedTo", 3, "after", function(item, inventoryHolder, addType)
-	if MCM.Get("enabled") then
+	if not next(playerSubs) and MCM.Get("enabled") and Osi.Exists(item) == 1 then
 		Logger:BasicDebug("%s was added to %s with addType %s", item, inventoryHolder, addType)
 
 		if Osi.IsEquipable(item) == 1 and Osi.IsEquipped(item) == 0 then
@@ -324,11 +331,15 @@ Ext.Osiris.RegisterListener("RequestCanLoot", 2, "after", function(looter, targe
 end)
 
 Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
-	if MCM.Get("enabled") then
+	if not next(playerSubs) and MCM.Get("enabled") then
 		Logger:BasicDebug("%s unequipped %s", character, item)
 
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
+
+		if Osi.Exists(item) == 1 and Ext.Entity.Get(item).Vars.TheArmory_Vanity_Item_CurrentlyMogging then
+			return
+		end
 
 		ProcessEquippedItemsOnChar(charEntity)
 	end

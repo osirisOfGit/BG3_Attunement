@@ -8,16 +8,16 @@
 			"name": "BG3 Script Extender Lua Debug",
 			"preLaunchTask": "bg3Continue",
 			// "postDebugTask": "bg3Kill",
-			"internalConsoleOptions": "openOnSessionStart",
+			"internalConsoleOptions": "neverOpen",
 			"type": "bg3lua",
 			"request": "launch",
 			"program": "${workspaceFolder}\\BG3EDebugAdapter\\LuaDebugger.exe",
 			"backendHost": "127.0.0.1",
 			"backendPort": 9998,
 			"dbgOptions": {
-				"breakOnError": false,
-				"breakOnGenericError": false
-			}
+				"breakOnError": true,
+				"breakOnGenericError": true
+			} 
 		}
 	]
 }

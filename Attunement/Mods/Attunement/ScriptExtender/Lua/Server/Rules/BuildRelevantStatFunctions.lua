@@ -33,33 +33,54 @@ local slotToCategory = {
 }
 
 local statFunctions = {
-	---@param stat ItemStat
-	["attunements"] = function(stat, _)
-		if (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity")) then
-			-- Friggen lua falsy logic
-			local shouldAttune = ConfigManager.ConfigCopy.items.requiresAttunementOverrides[stat.Name]
-			if shouldAttune == nil then
-				shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
-			end
+	["attunements"] = function(disable)
+		---@param stat ItemStat
+		return function(stat)
+			if (stat.Slot ~= "Underwear" and not string.find(stat.Slot, "Vanity")) then
+				-- Friggen lua falsy logic
+				local shouldAttune = ConfigManager.ConfigCopy.items.requiresAttunementOverrides[stat.Name]
+				if shouldAttune == nil then
+					shouldAttune = (RarityEnum[stat.Rarity] >= RarityEnum[ConfigManager.ConfigCopy.items.attunementRarityThreshold] and (stat.Boosts ~= "" or stat.PassivesOnEquip ~= "" or stat.StatusOnEquip ~= ""))
+				end
+				shouldAttune = not disable and shouldAttune
 
-			if shouldAttune and (not stat.UseCosts or not (string.find(stat.UseCosts, ";Attunement:") or string.find(stat.UseCosts, "^Attunement:"))) then
-				stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:" .. (difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"] or "1"))
+				-- Remove any occurrence of 'Attunement:<number>' (with optional leading/trailing semicolons)
+				stat.UseCosts = stat.UseCosts
+					:gsub(";%s*Attunement:%d+%s*;?", ";")
+					:gsub("^Attunement:%d+;?", "")
+					:gsub(";?Attunement:%d+$", "")
+					:gsub("^;+", "")
+					:gsub(";+$", "")
+
+				if shouldAttune then
+					stat.UseCosts = buildStatString(stat.UseCosts, "Attunement:" .. (difficultyRules.rarityLimits[stat.Rarity]["Attunement Slots"] or "1"))
+				end
 			end
 		end
 	end,
 	---@param rarity Rarity
 	---@param category RarityLimitCategories
-	["rarityLimits"] = function(rarity, category)
+	["rarityLimits"] = function(rarity, category, disable)
 		---@param stat ItemStat
 		return function(stat)
-			if stat.Rarity == rarity
-				and (category == "Total"
-					or (((string.find(stat.Slot, "Melee") or string.find(stat.Slot, "Ranged")) and category == "Weapons")
-						or (slotToCategory[stat.Slot] or "") == category))
-			then
-				local resourceString = string.format("%s%sLimitAttunement:1", rarity, category)
-				if (not stat.UseCosts or not string.find(stat.UseCosts, resourceString)) then
-					stat.UseCosts = buildStatString(stat.UseCosts, resourceString)
+			if disable then
+				-- Remove any occurrence of 'Attunement:<number>' or '<Rarity><Category>LimitAttunement:<number>' (with optional leading/trailing semicolons)
+				stat.UseCosts = stat.UseCosts
+					:gsub(";%s*[%w]+LimitAttunement:%d+%s*;?", ";")
+					:gsub("^%w+LimitAttunement:%d+;?", "")
+					:gsub(";?%w+LimitAttunement:%d+$", "")
+					:gsub("^;+", "")
+					:gsub(";+$", "")
+			else
+				if stat.Rarity == rarity
+					and (category == "Total"
+						or (((string.find(stat.Slot, "Melee") or string.find(stat.Slot, "Ranged")) and category == "Weapons")
+							or (slotToCategory[stat.Slot] or "") == category))
+				then
+					local resourceString = string.format("%s%sLimitAttunement:1", rarity, category)
+					if (not stat.UseCosts or not string.find(stat.UseCosts, resourceString)) then
+						stat.UseCosts = buildStatString(stat.UseCosts, resourceString)
+					end
 				end
 			end
 		end
@@ -112,9 +133,9 @@ function BuildRelevantStatFunctions()
 
 		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", enabled and difficultyRules.totalAttunementLimit or 0))
 		maxAmounts["Attunement"] = enabled and tonumber(difficultyRules.totalAttunementLimit) or 0
-		if enabled then
-			table.insert(functionsToReturn, statFunctions["attunements"])
-		end
+		table.insert(functionsToReturn, statFunctions["attunements"](false))
+	else
+		table.insert(functionsToReturn, statFunctions["attunements"](true))
 	end
 
 	for _, rarity in ipairs(RarityEnum) do
@@ -137,10 +158,9 @@ function BuildRelevantStatFunctions()
 
 
 						maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
-
-						if enabled then
-							table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category))
-						end
+						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category, false))
+					else
+						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category, true))
 					end
 				end
 			end
@@ -202,10 +222,12 @@ function BuildRelevantStatFunctions()
 			local resources = charEntity.ActionResources.Resources
 			for _, resource in pairs(resources) do
 				local resource = resource[1]
-				local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
-				if string.match(resourceName, "^.*Attunement$") then
-					if not maxAmounts[resourceName] then
-						Osi.AddBoosts(character, string.format("ActionResource(%s,0,0)", resourceName), "", character)
+				if Ext.StaticData.Get(resource.ResourceUUID, "ActionResource") then
+					local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
+					if string.match(resourceName, "^.*Attunement$") then
+						if not maxAmounts[resourceName] then
+							Osi.AddBoosts(character, string.format("ActionResource(%s,0,0)", resourceName), "", character)
+						end
 					end
 				end
 			end
