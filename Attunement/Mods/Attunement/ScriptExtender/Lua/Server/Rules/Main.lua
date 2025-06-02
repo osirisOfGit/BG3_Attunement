@@ -4,6 +4,8 @@ local maxAmounts = {}
 ---@type AttunementRules
 local difficultyRules
 
+local armoryIsLoaded = Ext.Mod.IsModLoaded("b1f292a4-f484-4631-8c58-532b53fd1c11")
+
 ---@param itemUUID GUIDSTRING
 ---@return ItemStat?
 local function FixAttunementStatus(itemUUID)
@@ -256,7 +258,7 @@ Ext.Osiris.RegisterListener("Equipped", 2, "after", function(item, character)
 		---@type EntityHandle
 		local itemEntity = Ext.Entity.Get(item)
 
-		if not itemEntity or itemEntity.Vars.TheArmory_Vanity_Item_CurrentlyMogging then
+		if not itemEntity or (armoryIsLoaded and itemEntity.Vars.TheArmory_Vanity_Item_CurrentlyMogging) then
 			return
 		end
 
@@ -337,7 +339,7 @@ Ext.Osiris.RegisterListener("Unequipped", 2, "after", function(item, character)
 		---@type EntityHandle
 		local charEntity = Ext.Entity.Get(character)
 
-		if Osi.Exists(item) == 1 and Ext.Entity.Get(item).Vars.TheArmory_Vanity_Item_CurrentlyMogging then
+		if Osi.Exists(item) == 1 and (armoryIsLoaded and Ext.Entity.Get(item).Vars.TheArmory_Vanity_Item_CurrentlyMogging) then
 			return
 		end
 

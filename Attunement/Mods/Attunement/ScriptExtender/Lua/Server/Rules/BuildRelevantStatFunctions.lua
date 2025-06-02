@@ -133,7 +133,7 @@ function BuildRelevantStatFunctions()
 
 		actionResources = buildStatString(actionResources, string.format("ActionResource(Attunement,%s,0)", enabled and difficultyRules.totalAttunementLimit or 0))
 		maxAmounts["Attunement"] = enabled and tonumber(difficultyRules.totalAttunementLimit) or 0
-		table.insert(functionsToReturn, statFunctions["attunements"](false))
+		table.insert(functionsToReturn, statFunctions["attunements"](not enabled))
 	else
 		table.insert(functionsToReturn, statFunctions["attunements"](true))
 	end
@@ -158,7 +158,7 @@ function BuildRelevantStatFunctions()
 
 
 						maxAmounts[string.format("%s%sLimitAttunement", rarity, category)] = enabled and difficultyRules.rarityLimits[rarity][category] or 0
-						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category, false))
+						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category, not enabled))
 					else
 						table.insert(functionsToReturn, statFunctions["rarityLimits"](rarity, category, true))
 					end
