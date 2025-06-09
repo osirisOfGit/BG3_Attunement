@@ -103,7 +103,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			local sliderGroup = section:AddGroup("SliderGroup")
 			local totalAttuneLimitSlider = sliderGroup:AddSliderInt("", difficultyConfig.totalAttunementLimit, 1,
 				ConfigurationStructure.config.rules.uncapAttunementLimit and 99 or ConfigurationStructure.DynamicClassDefinitions.rules.totalAttunementLimit)
-			local uncapCheckbox = section:AddCheckbox("Uncap Attunement Limit?", ConfigurationStructure.config.rules.uncapAttunementLimit or false)
+			local uncapCheckbox = section:AddCheckbox(Translator:translate("Uncap Attunement Limit?"), ConfigurationStructure.config.rules.uncapAttunementLimit or false)
 			uncapCheckbox.SameLine = true
 
 			uncapCheckbox.OnChange = function ()
@@ -156,7 +156,7 @@ Mods.BG3MCM.IMGUIAPI:InsertModMenuTab(ModuleUUID, "Rules",
 			headerRow:AddCell():AddText(Translator:translate("Armor"))
 			headerRow:AddCell():AddText(Translator:translate("Accessories"))
 			headerRow:AddCell():AddText(Translator:translate("# of Attunement Slots Consumed") .. " (?)"):Tooltip():AddText(
-			"Every item equipped will use the specified amount of Attunement Slots when equipped")
+			Translator:translate("Every item equipped will use the specified amount of Attunement Slots when equipped"))
 
 			for _, rarity in ipairs(RarityEnum) do
 				if rarity ~= "Common" then

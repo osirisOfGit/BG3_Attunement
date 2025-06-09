@@ -12,6 +12,7 @@
     <content contentuid="h329de7d3b8214c3cbaafd1d985bf1b62d2cf" version="1">Can't attune items while in combat</content>
     <content contentuid="hcbc0fc605ba646fdb98c0fea33154a4abb63" version="1">Attunement Limit Reached</content>
     <content contentuid="hb77562e6fd244ceea8ab82d791f0cc1a009d" version="1">Can't equip any more items that require attunement</content>
+    
 
     <!-- RARITY LIMIT RESOURCES -->
     <content contentuid="hcb119a4628d4471e91fc6ea47cb34e25af24" version="1">How many Uncommon items can be equipped in total</content>
@@ -109,6 +110,8 @@
     <content contentuid="h8f6e37ff1b634b3d9dd0978f96207cc578g4" version="1">Enable Mod</content>
     <content contentuid="h4adbc671c54d486ca3989249c74cf6ee1e4c" version="1">Log level</content>
     <content contentuid="h838d4b555a7c471f86daa380f5e8f37a0796" version="1">0 = Off, 1 = Error, 2 = Warn, 3 = Info, 4 = Debug, 5 = Trace (Anything higher than Info will only be logged to the log.txt, not the SE console)</content>
+    <content contentuid="h599edf2bb9cd4fc1b4dbf3650b4f9d21a402" version="1">Trigger Cast Animation When Equipping Attunable Item</content>
+    <content contentuid="h43764e678ec9407593f7e95a96c489d5277e" version="1">Trigger Cast Animation When Equipping Attunable Item In Combat</content>
     <!-- END GENERAL MCM -->
     
     <content contentuid="h946e5228701f4acca6ecb49d275ee7e0e4e9" version="1">Common</content>
@@ -122,6 +125,9 @@
     <content contentuid="h311df199543f4b319408ddb0d62d88cda12g" version="1">Each slider comes with two buttons: A button to show the Action Resource ('RES') and one to show the status ('STAT')</content>
     <content contentuid="h6440e07863614f06ba915a7d9c31272d4899" version="1">The resource only shows when you're _below_ the equip limit for the given resource, and the status only shows when you've reached the given equip limit</content>
     <content contentuid="h08a487c833894446b381bbcda13f538d3adc" version="1">The button settings are copied between difficulties - only the sliders are per-difficulty</content>
+    <content contentuid="ha18b8682ed654b19ae06e584243c405fe1gc" version="1">Every item equipped will use the specified amount of Attunement Slots when equipped</content>
+    <content contentuid="h2c18ca48c1e24f6a86630dd798729c31baag" version="1"># of Attunement Slots Consumed</content>
+    <content contentuid="h5e66b173097f49ef91432706656cc1a3bb10" version="1">Uncap Attunement Limit?</content>
     <content contentuid="h4582fbdc45fb43928b4c7df70c9e49651e10" version="1">Total Number Of Attuned Items Allowed</content>
     <content contentuid="hc11fa07bed57481db27ff90a2d5141ed5e02" version="1">RES</content>
     <content contentuid="h53a82ffebb724fa08821989fb2ece04c3af2" version="1">STAT</content>
@@ -160,6 +166,4 @@
     <content contentuid="hc097c5a5986841928c0db33491afb54e088b" version="1">Gives Passive(s)</content>
     <content contentuid="h3a660e08f39249e5823458db9b5f6393dd1c" version="1">Gives Status(es)</content>
     <!-- END ITEMCONFIG MCM -->
-    <content contentuid="h599edf2bb9cd4fc1b4dbf3650b4f9d21a402" version="1">Trigger Cast Animation When Equipping Attunable Item</content>
-    <content contentuid="h43764e678ec9407593f7e95a96c489d5277e" version="1">Trigger Cast Animation When Equipping Attunable Item In Combat</content>
 </contentList>

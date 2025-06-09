@@ -203,12 +203,15 @@ function BuildRelevantStatFunctions()
 				if boostEntry.Type == "ActionResource" then
 					for _, boost in pairs(boostEntry.Boosts) do
 						local resourceBoost = boost.ActionResourceValueBoost
-						local resourceName = Ext.StaticData.Get(resourceBoost.ResourceUUID, "ActionResource").Name
-						if playerAmountTracker[resourceName] then
-							resourceBoost.Amount = playerAmountTracker[resourceName]
-							playerAmountTracker[resourceName] = nil
-						elseif string.match(resourceName, "^.*Attunement$") then
-							Osi.RemoveBoosts(character, string.format("ActionResource(%s,%s,0)", resourceName, resourceBoost.Amount), 0, "", character)
+						local resource = Ext.StaticData.Get(resourceBoost.ResourceUUID, "ActionResource")
+						if resource then
+							local resourceName = resource.Name
+							if playerAmountTracker[resourceName] then
+								resourceBoost.Amount = playerAmountTracker[resourceName]
+								playerAmountTracker[resourceName] = nil
+							elseif string.match(resourceName, "^.*Attunement$") then
+								Osi.RemoveBoosts(character, string.format("ActionResource(%s,%s,0)", resourceName, resourceBoost.Amount), 0, "", character)
+							end
 						end
 					end
 					break
@@ -222,7 +225,7 @@ function BuildRelevantStatFunctions()
 			local resources = charEntity.ActionResources.Resources
 			for _, resource in pairs(resources) do
 				local resource = resource[1]
-				if Ext.StaticData.Get(resource.ResourceUUID, "ActionResource") then
+				if resource and Ext.StaticData.Get(resource.ResourceUUID, "ActionResource") then
 					local resourceName = Ext.StaticData.Get(resource.ResourceUUID, "ActionResource").Name
 					if string.match(resourceName, "^.*Attunement$") then
 						if not maxAmounts[resourceName] then
